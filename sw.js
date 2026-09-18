@@ -1,5 +1,5 @@
 // Leafy Service Worker - Offline Caching & Background App Support
-const CACHE_NAME = 'leafy-cache-v2';
+const CACHE_NAME = 'leafy-cache-v3';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
