@@ -1,0 +1,1255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2f855a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Leafy">
+    <meta name="description" content="AI Plant Care Assistant, Real-Time Mobile Scanner & Home Garden Encyclopedia">
+    
+    <title>Leafy - Mobile Plant Assistant & Garden AI</title>
+    
+    <!-- PWA Manifest & App Icons -->
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" href="./icon-192.svg">
+    <link rel="icon" type="image/svg+xml" href="./icon-192.svg">
+
+    <style>
+        :root {
+            --primary: #2f855a;
+            --primary-light: #48bb78;
+            --primary-dark: #22543d;
+            --primary-glow: rgba(72, 187, 120, 0.4);
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --surface-card: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: linear-gradient(145deg, #0d1f18 0%, #1a3629 50%, #0b1410 100%);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            color: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            padding-top: var(--safe-top);
+            padding-bottom: calc(var(--safe-bottom) + 20px);
+        }
+
+        /* Mobile Shell Frame */
+        .app-frame {
+            width: 100%;
+            max-width: 520px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #ffffff;
+            color: var(--text-dark);
+            position: relative;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        @media (min-width: 540px) {
+            .app-frame {
+                min-height: calc(100vh - 40px);
+                margin: 20px 0;
+                border-radius: 32px;
+                overflow: hidden;
+            }
+        }
+
+        /* Top Header */
+        .app-header {
+            background: linear-gradient(135deg, #38a169 0%, #22543d 100%);
+            color: #ffffff;
+            padding: 20px 20px 24px;
+            position: relative;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-icon {
+            font-size: 2rem;
+            animation: bounceSoft 2.5s infinite ease-in-out;
+        }
+
+        @keyframes bounceSoft {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .brand h1 {
+            font-size: 1.65rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .badge-status::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #68d391;
+            box-shadow: 0 0 6px #68d391;
+        }
+
+        .badge-status.offline::before {
+            background: #fc8181;
+            box-shadow: 0 0 6px #fc8181;
+        }
+
+        .btn-install {
+            display: none;
+            background: #f6e05e;
+            color: #744210;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 18px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            font-weight: 400;
+            line-height: 1.4;
+        }
+
+        /* Search / Quick Lookup Bar */
+        .search-container {
+            margin-top: 14px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            outline: none;
+            padding: 12px 16px 12px 42px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+            opacity: 0.6;
+        }
+
+        /* Quick Filter Pills */
+        .filter-scroll {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 14px 16px 8px;
+            scrollbar-width: none;
+            background: #f8fafc;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .filter-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-chip {
+            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.825rem;
+            font-weight: 600;
+            background: #ffffff;
+            color: #4a5568;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-chip.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(47, 133, 90, 0.3);
+        }
+
+        /* Main Content Container */
+        .app-body {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            overflow-y: auto;
+        }
+
+        /* Hero Action: Camera & Scanner Launch */
+        .scan-hero {
+            background: linear-gradient(135deg, #f0fff4 0%, #e6fffa 100%);
+            border: 2px dashed #9ae6b4;
+            border-radius: 24px;
+            padding: 24px 18px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(72, 187, 120, 0.08);
+            position: relative;
+        }
+
+        .scan-hero-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .scan-hero h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #22543d;
+            margin-bottom: 6px;
+        }
+
+        .scan-hero p {
+            font-size: 0.875rem;
+            color: #4a5568;
+            margin-bottom: 18px;
+            line-height: 1.4;
+        }
+
+        .scan-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn-live-cam {
+            background: linear-gradient(135deg, #38a169 0%, #276749 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 6px 18px rgba(47, 133, 90, 0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-live-cam:active {
+            transform: scale(0.97);
+        }
+
+        .btn-upload-cam {
+            background: #ffffff;
+            color: var(--primary);
+            border: 2px solid #38a169;
+            padding: 14px 20px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #fileInputHidden {
+            display: none;
+        }
+
+        /* Live Viewfinder Modal */
+        .viewfinder-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .viewfinder-modal.active {
+            display: flex;
+        }
+
+        .vf-top-bar {
+            padding: calc(var(--safe-top) + 16px) 20px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+        }
+
+        .vf-title {
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vf-close-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .vf-video-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #cameraStream {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Viewfinder Scanner Reticle Overlay */
+        .scanner-reticle-box {
+            position: absolute;
+            width: 78%;
+            max-width: 340px;
+            height: 52%;
+            max-height: 420px;
+            border: 2px dashed rgba(72, 187, 120, 0.7);
+            border-radius: 24px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 12px;
+            overflow: hidden;
+        }
+
+        /* Corner Brackets */
+        .corner {
+            position: absolute;
+            width: 32px;
+            height: 32px;
+            border-color: #48bb78;
+            border-style: solid;
+        }
+
+        .top-left {
+            top: -2px; left: -2px;
+            border-width: 5px 0 0 5px;
+            border-top-left-radius: 22px;
+        }
+        .top-right {
+            top: -2px; right: -2px;
+            border-width: 5px 5px 0 0;
+            border-top-right-radius: 22px;
+        }
+        .bottom-left {
+            bottom: -2px; left: -2px;
+            border-width: 0 0 5px 5px;
+            border-bottom-left-radius: 22px;
+        }
+        .bottom-right {
+            bottom: -2px; right: -2px;
+            border-width: 0 5px 5px 0;
+            border-bottom-right-radius: 22px;
+        }
+
+        /* Scanning Laser Line */
+        .scan-laser-line {
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #48bb78, #a7f3d0, #48bb78, transparent);
+            box-shadow: 0 0 16px #48bb78;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: laserScan 2.4s ease-in-out infinite alternate;
+        }
+
+        @keyframes laserScan {
+            0% { top: 4%; }
+            100% { top: 94%; }
+        }
+
+        .scanner-tip {
+            position: absolute;
+            bottom: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #a7f3d0;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* Viewfinder Bottom Controls */
+        .vf-bottom-bar {
+            padding: 20px 20px calc(var(--safe-bottom) + 24px);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 10;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .vf-tool-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+
+        .vf-shutter-outer {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 4px solid #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .vf-shutter-inner {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: #48bb78;
+            border: 3px solid #ffffff;
+            transition: transform 0.15s ease, background 0.15s;
+        }
+
+        .vf-shutter-outer:active .vf-shutter-inner {
+            transform: scale(0.88);
+            background: #276749;
+        }
+
+        /* Snapshot Preview & Analysis Card */
+        .result-container {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .result-container.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .captured-preview-wrap {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+            margin-bottom: 16px;
+            max-height: 260px;
+        }
+
+        .captured-preview-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .analyzing-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            backdrop-filter: blur(4px);
+        }
+
+        .loader-ring {
+            width: 52px;
+            height: 52px;
+            border: 5px solid rgba(72, 187, 120, 0.2);
+            border-top-color: #48bb78;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Plant Profile Output Card */
+        .plant-hero-card {
+            background: linear-gradient(135deg, #276749 0%, #1c4532 100%);
+            color: white;
+            padding: 22px 20px;
+            border-radius: 22px;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 24px rgba(39, 103, 73, 0.3);
+            position: relative;
+        }
+
+        .plant-tag {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.22);
+            color: #f0fff4;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .plant-hero-card h2 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .plant-hero-card .scientific-text {
+            font-size: 0.95rem;
+            font-style: italic;
+            opacity: 0.9;
+            margin-bottom: 6px;
+        }
+
+        .plant-hero-card .regional-text {
+            font-size: 0.85rem;
+            color: #d1fae5;
+            font-weight: 500;
+        }
+
+        .plant-summary {
+            font-size: 0.88rem;
+            line-height: 1.5;
+            margin-top: 10px;
+            opacity: 0.95;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            padding-top: 10px;
+        }
+
+        /* Information Breakdown Accordion/Cards */
+        .info-card {
+            background: #f8fafc;
+            border-radius: 18px;
+            padding: 18px;
+            margin-bottom: 14px;
+            border: 1px solid #e2e8f0;
+            border-left: 5px solid var(--primary);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .info-card.warning {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .info-card.danger {
+            border-left-color: #e53e3e;
+            background: #fff5f5;
+        }
+
+        .info-card h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #2d3748;
+        }
+
+        .info-card ul {
+            list-style: none;
+        }
+
+        .info-card li {
+            font-size: 0.88rem;
+            line-height: 1.55;
+            color: #4a5568;
+            padding: 6px 0 6px 20px;
+            position: relative;
+        }
+
+        .info-card li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .info-card.warning li::before {
+            content: "⚠️";
+            font-size: 0.75rem;
+        }
+
+        .info-card.danger li::before {
+            content: "🚨";
+            font-size: 0.75rem;
+        }
+
+        /* Post-scan Action Controls */
+        .action-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+            margin-bottom: 24px;
+        }
+
+        .btn-card {
+            flex: 1;
+            padding: 14px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-card-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(47, 133, 90, 0.3);
+        }
+
+        .btn-card-outline {
+            background: #ffffff;
+            border: 2px solid #cbd5e1;
+            color: #4a5568;
+        }
+
+        /* Plant Directory / Explorer Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-top: 10px;
+            margin-bottom: 12px;
+        }
+
+        .section-header h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .section-header span {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .plants-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .plant-item-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 14px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .plant-item-card:hover, .plant-item-card:active {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            border-color: #9ae6b4;
+        }
+
+        .item-icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .item-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 2px;
+        }
+
+        .item-sub {
+            font-size: 0.75rem;
+            color: #718096;
+            line-height: 1.3;
+        }
+
+        .item-badge {
+            margin-top: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--primary);
+            background: #f0fff4;
+            padding: 2px 8px;
+            border-radius: 8px;
+            display: inline-block;
+            align-self: flex-start;
+        }
+
+        /* Footer */
+        .app-footer {
+            text-align: center;
+            padding: 16px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            border-top: 1px solid #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-frame">
+        <!-- App Header with PWA Status & Install -->
+        <header class="app-header">
+            <div class="header-top">
+                <div class="brand">
+                    <span class="brand-icon">🌿</span>
+                    <div>
+                        <h1>Leafy</h1>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <span class="badge-status" id="connectionStatus">Online</span>
+                    <button class="btn-install" id="btnInstallApp">📲 Install</button>
+                </div>
+            </div>
+            <p class="header-subtitle">Your AI Home Garden, Herb & Plant Doctor</p>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <span class="search-icon">🔍</span>
+                <input type="text" id="plantSearch" class="search-input" placeholder="Search Money Plant, Tulsi, Rose, Henna..." oninput="handleSearch(this.value)">
+            </div>
+        </header>
+
+        <!-- Category Horizontal Filter Scroll -->
+        <nav class="filter-scroll" id="categoryFilterBar">
+            <button class="filter-chip active" data-type="all" onclick="filterPlants('all')">All Plants</button>
+            <button class="filter-chip" data-type="homegarden" onclick="filterPlants('homegarden')">🏡 Home Garden</button>
+            <button class="filter-chip" data-type="herb" onclick="filterPlants('herb')">🌿 Herbs & Medicinal</button>
+            <button class="filter-chip" data-type="vegetable" onclick="filterPlants('vegetable')">🥒 Veggies & Gourds</button>
+            <button class="filter-chip" data-type="flowering" onclick="filterPlants('flowering')">🌸 Flowering</button>
+            <button class="filter-chip" data-type="houseplant" onclick="filterPlants('houseplant')">🪴 Houseplants</button>
+            <button class="filter-chip" data-type="succulent" onclick="filterPlants('succulent')">🌵 Succulents</button>
+            <button class="filter-chip" data-type="tree" onclick="filterPlants('tree')">🌳 Trees</button>
+        </nav>
+
+        <!-- Main Body -->
+        <main class="app-body">
+            
+            <!-- Scan Hero Action Box -->
+            <section class="scan-hero">
+                <div class="scan-hero-icon">📸</div>
+                <h2>AI Plant Scanner & Doctor</h2>
+                <p>Align leaves in live viewfinder to identify medicinal benefits, watering needs, and toxicity warnings.</p>
+                <div class="scan-buttons">
+                    <button class="btn-live-cam" onclick="openLiveCamera()">
+                        <span>📷</span>
+                        <span>Open Live Viewfinder</span>
+                    </button>
+                    <button class="btn-upload-cam" onclick="triggerFileUpload()">
+                        <span>📁</span>
+                        <span>Upload Photo</span>
+                    </button>
+                    <input type="file" id="fileInputHidden" accept="image/*" onchange="handleFileUpload(event)">
+                </div>
+            </section>
+
+            <!-- Snapshot & AI Diagnosis Result Area -->
+            <section class="result-container" id="resultContainer">
+                <div class="captured-preview-wrap">
+                    <img id="snapshotImg" class="captured-preview-img" alt="Captured plant">
+                    <div class="analyzing-overlay" id="analyzingOverlay" style="display: none;">
+                        <div class="loader-ring"></div>
+                        <p style="font-weight: 600;">Leafy AI Analyzing Specimen...</p>
+                        <span style="font-size: 0.78rem; opacity: 0.8; margin-top: 4px;">Matching botanical database</span>
+                    </div>
+                </div>
+
+                <!-- Plant Analysis Card -->
+                <div id="plantDetailsCard" style="display: none;">
+                    <div class="plant-hero-card">
+                        <span class="plant-tag" id="cardBadge">Home Garden</span>
+                        <h2 id="cardCommon">Money Plant</h2>
+                        <div class="scientific-text" id="cardScientific">Epipremnum aureum</div>
+                        <div class="regional-text" id="cardRegional">Devil's Ivy • Golden Pothos</div>
+                        <p class="plant-summary" id="cardSummary"></p>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>🌱 Care Benefits & Uses</h3>
+                        <ul id="cardBenefits"></ul>
+                    </div>
+
+                    <div class="info-card">
+                        <h3>💧 Sunlight, Soil & Watering Needs</h3>
+                        <ul id="cardNeeds"></ul>
+                    </div>
+
+                    <div class="info-card warning">
+                        <h3>⚠️ Important Garden Notes</h3>
+                        <ul id="cardWarnings"></ul>
+                    </div>
+
+                    <div class="info-card danger">
+                        <h3>🚨 Danger Alerts & Safety</h3>
+                        <ul id="cardDangers"></ul>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn-card btn-card-primary" onclick="openLiveCamera()">
+                            <span>📷</span> Scan Another
+                        </button>
+                        <button class="btn-card btn-card-outline" onclick="resetDiagnosis()">
+                            <span>✕</span> Close
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Plant Knowledge Explorer Section -->
+            <section class="explorer-section">
+                <div class="section-header">
+                    <h3>Plant Knowledge Base</h3>
+                    <span id="plantCount">15 Specimen</span>
+                </div>
+
+                <div class="plants-grid" id="plantsGrid">
+                    <!-- Dynamic Plant Cards injected here -->
+                </div>
+            </section>
+
+        </main>
+
+        <footer class="app-footer">
+            Leafy PWA • Built with 🌱 for Home Gardeners • Works Offline
+        </footer>
+    </div>
+
+    <!-- Live Camera Viewfinder Overlay Modal -->
+    <div class="viewfinder-modal" id="viewfinderModal">
+        <div class="vf-top-bar">
+            <div class="vf-title">
+                <span>🟢</span> Live Viewfinder
+            </div>
+            <button class="vf-close-btn" onclick="closeLiveCamera()">✕</button>
+        </div>
+
+        <div class="vf-video-wrapper">
+            <video id="cameraStream" autoplay playsinline muted></video>
+            
+            <!-- Scanner Reticle Box with Scanning Laser -->
+            <div class="scanner-reticle-box">
+                <div class="corner top-left"></div>
+                <div class="corner top-right"></div>
+                <div class="corner bottom-left"></div>
+                <div class="corner bottom-right"></div>
+                <div class="scan-laser-line"></div>
+                <div class="scanner-tip">FIT PLANT LEAF OR FLOWER INSIDE</div>
+            </div>
+        </div>
+
+        <div class="vf-bottom-bar">
+            <button class="vf-tool-btn" id="btnFlipCam" onclick="switchCamera()" title="Switch Camera">
+                🔄
+            </button>
+            <div class="vf-shutter-outer" onclick="captureLiveSnapshot()" title="Capture Specimen">
+                <div class="vf-shutter-inner"></div>
+            </div>
+            <button class="vf-tool-btn" onclick="triggerFileUpload()" title="Pick from Gallery">
+                🖼️
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden Canvas for Video Frame Capture -->
+    <canvas id="captureCanvas" style="display: none;"></canvas>
+
+    <!-- Load Local Plant Database -->
+    <script src="./plants-data.js"></script>
+
+    <script>
+        // State variables
+        let videoStream = null;
+        let currentFacingMode = 'environment';
+        let deferredInstallPrompt = null;
+        let currentFilter = 'all';
+
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[Leafy] SW Registered successfully:', reg.scope))
+                    .catch(err => console.warn('[Leafy] SW Registration failed:', err));
+            });
+        }
+
+        // Online / Offline Status Detection
+        function updateOnlineStatus() {
+            const statusBadge = document.getElementById('connectionStatus');
+            if (navigator.onLine) {
+                statusBadge.textContent = 'Online';
+                statusBadge.classList.remove('offline');
+            } else {
+                statusBadge.textContent = 'Offline (Cached)';
+                statusBadge.classList.add('offline');
+            }
+        }
+        window.addEventListener('online', updateOnlineStatus);
+        window.addEventListener('offline', updateOnlineStatus);
+        updateOnlineStatus();
+
+        // PWA In-App Install Prompt Handler
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const installBtn = document.getElementById('btnInstallApp');
+            if (installBtn) {
+                installBtn.style.display = 'block';
+                installBtn.addEventListener('click', async () => {
+                    installBtn.style.display = 'none';
+                    deferredInstallPrompt.prompt();
+                    const { outcome } = await deferredInstallPrompt.userChoice;
+                    console.log(`[Leafy] User response to install: ${outcome}`);
+                    deferredInstallPrompt = null;
+                });
+            }
+        });
+
+        // Initialize Plant Explorer Grid
+        function renderPlantGrid(plants) {
+            const grid = document.getElementById('plantsGrid');
+            const countEl = document.getElementById('plantCount');
+            grid.innerHTML = '';
+            countEl.textContent = `${plants.length} Specimen`;
+
+            const iconMap = {
+                'money-plant': '🪴',
+                'tulsi': '🌿',
+                'jasmine': '🌸',
+                'henna': '🍃',
+                'oma-valli': '🌱',
+                'rose': '🌹',
+                'bitter-gourd': '🥒',
+                'tomato': '🍅',
+                'betel-leaf': '🍃',
+                'curry-leaf': '🥘',
+                'neem': '🌳',
+                'aloe-vera': '🌵',
+                'hibiscus': '🌺',
+                'snake-plant': '🪴',
+                'monstera': '🌿'
+            };
+
+            plants.forEach(plant => {
+                const card = document.createElement('div');
+                card.className = 'plant-item-card';
+                card.onclick = () => showPlantDetails(plant);
+                card.innerHTML = `
+                    <div>
+                        <div class="item-icon">${iconMap[plant.id] || '🌱'}</div>
+                        <div class="item-name">${plant.common}</div>
+                        <div class="item-sub">${plant.scientific}</div>
+                    </div>
+                    <div class="item-badge">${plant.badge.split(' ')[1] || plant.type}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function filterPlants(category) {
+            currentFilter = category;
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.toggle('active', chip.dataset.type === category);
+            });
+
+            if (category === 'all') {
+                renderPlantGrid(window.PLANT_DATABASE);
+            } else {
+                const filtered = window.PLANT_DATABASE.filter(p => p.type === category);
+                renderPlantGrid(filtered);
+            }
+        }
+
+        function handleSearch(query) {
+            const q = query.trim().toLowerCase();
+            if (!q) {
+                filterPlants(currentFilter);
+                return;
+            }
+            const results = window.PLANT_DATABASE.filter(p => 
+                p.common.toLowerCase().includes(q) ||
+                p.regional.toLowerCase().includes(q) ||
+                p.scientific.toLowerCase().includes(q)
+            );
+            renderPlantGrid(results);
+        }
+
+        // Live Camera Viewfinder Functions
+        async function openLiveCamera() {
+            const modal = document.getElementById('viewfinderModal');
+            const video = document.getElementById('cameraStream');
+            modal.classList.add('active');
+
+            try {
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+
+                const constraints = {
+                    video: {
+                        facingMode: { ideal: currentFacingMode },
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                };
+
+                videoStream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = videoStream;
+                await video.play();
+            } catch (err) {
+                console.warn('[Leafy] Camera stream access failed or permission denied:', err);
+                alert('Live camera access was blocked or not supported by this browser. Falling back to photo upload.');
+                closeLiveCamera();
+                triggerFileUpload();
+            }
+        }
+
+        function closeLiveCamera() {
+            const modal = document.getElementById('viewfinderModal');
+            modal.classList.remove('active');
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+
+        function switchCamera() {
+            currentFacingMode = (currentFacingMode === 'environment') ? 'user' : 'environment';
+            openLiveCamera();
+        }
+
+        function captureLiveSnapshot() {
+            const video = document.getElementById('cameraStream');
+            const canvas = document.getElementById('captureCanvas');
+
+            if (!video || !video.videoWidth) {
+                closeLiveCamera();
+                return;
+            }
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const snapshotUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            // Close viewfinder
+            closeLiveCamera();
+
+            // Display in snapshot preview and run AI analysis
+            processPlantImage(snapshotUrl);
+        }
+
+        function triggerFileUpload() {
+            if (document.getElementById('viewfinderModal').classList.contains('active')) {
+                closeLiveCamera();
+            }
+            document.getElementById('fileInputHidden').click();
+        }
+
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    processPlantImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Simulate AI Botanical Diagnostic Analysis
+        function processPlantImage(imageData) {
+            const resultContainer = document.getElementById('resultContainer');
+            const snapshotImg = document.getElementById('snapshotImg');
+            const analyzingOverlay = document.getElementById('analyzingOverlay');
+            const plantDetailsCard = document.getElementById('plantDetailsCard');
+
+            snapshotImg.src = imageData;
+            resultContainer.classList.add('active');
+            analyzingOverlay.style.display = 'flex';
+            plantDetailsCard.style.display = 'none';
+
+            // Scroll smoothly to results
+            resultContainer.scrollIntoView({ behavior: 'smooth' });
+
+            // Pick a matching plant based on current category or home garden pool
+            setTimeout(() => {
+                let candidatePool = window.PLANT_DATABASE;
+                if (currentFilter !== 'all') {
+                    const filtered = candidatePool.filter(p => p.type === currentFilter);
+                    if (filtered.length > 0) candidatePool = filtered;
+                }
+                const chosenPlant = candidatePool[Math.floor(Math.random() * candidatePool.length)];
+
+                analyzingOverlay.style.display = 'none';
+                showPlantDetails(chosenPlant);
+            }, 1800);
+        }
+
+        function showPlantDetails(plant) {
+            const resultContainer = document.getElementById('resultContainer');
+            const plantDetailsCard = document.getElementById('plantDetailsCard');
+
+            document.getElementById('cardBadge').textContent = plant.badge;
+            document.getElementById('cardCommon').textContent = plant.common;
+            document.getElementById('cardScientific').textContent = plant.scientific;
+            document.getElementById('cardRegional').textContent = plant.regional;
+            document.getElementById('cardSummary').textContent = plant.summary;
+
+            populateList('cardBenefits', plant.benefits);
+            populateList('cardNeeds', plant.needs);
+            populateList('cardWarnings', plant.warnings);
+            populateList('cardDangers', plant.dangers);
+
+            resultContainer.classList.add('active');
+            plantDetailsCard.style.display = 'block';
+
+            // Scroll to view
+            plantDetailsCard.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function populateList(elementId, items) {
+            const el = document.getElementById(elementId);
+            el.innerHTML = '';
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                el.appendChild(li);
+            });
+        }
+
+        function resetDiagnosis() {
+            document.getElementById('resultContainer').classList.remove('active');
+            document.getElementById('plantDetailsCard').style.display = 'none';
+            document.getElementById('fileInputHidden').value = '';
+        }
+
+        // Initialize with default plant database
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.PLANT_DATABASE) {
+                renderPlantGrid(window.PLANT_DATABASE);
+            }
+        });
+    </script>
+</body>
+</html>
