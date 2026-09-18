@@ -1257,6 +1257,7 @@
                 const imageBlob = dataURItoBlob(imageData);
                 const formData = new FormData();
                 formData.append('images', imageBlob, 'plant.jpg');
+                formData.append('organs', 'leaf'); // default to leaf/flower/auto
 
                 const endpoint = `https://my-api.plantnet.org/v2/identify/all?api-key=${PLANTNET_API_KEY}`;
                 
@@ -1266,7 +1267,9 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error(`Pl@ntNet API returned status: ${response.status}`);
+                    const errBody = await response.text();
+                    console.error('[Leafy Pl@ntNet Error]', response.status, errBody);
+                    throw new Error(`Pl@ntNet API error HTTP ${response.status}: ${errBody}`);
                 }
 
                 const data = await response.json();
@@ -1318,11 +1321,15 @@
                         showPlantDetails(dynamicPlant);
                     }
                 } else {
-                    fallbackLocalDiagnosis(analyzingOverlay);
+                    alert('Pl@ntNet could not detect a recognizable plant in this image. Please take a closer, well-lit photo of a clear leaf or flower.');
+                    analyzingOverlay.style.display = 'none';
+                    resetDiagnosis();
                 }
             } catch (err) {
-                console.warn('[Leafy] PlantNet identification failed or offline, falling back:', err);
-                fallbackLocalDiagnosis(analyzingOverlay);
+                console.error('[Leafy API Failure]', err);
+                alert(`Plant identification issue: ${err.message || 'API request failed'}. Please ensure good internet connection and a clear photo.`);
+                analyzingOverlay.style.display = 'none';
+                resetDiagnosis();
             }
         }
 
