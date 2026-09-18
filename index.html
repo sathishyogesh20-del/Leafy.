@@ -926,8 +926,18 @@
                     </div>
 
                     <div class="details-grid-layout">
+                        <div class="info-card" style="border-left-color: #319795; background: #e6fffa;">
+                            <h3 style="color: #234e52;">🦋 Insects & Species It Attracts</h3>
+                            <ul id="cardInsects"></ul>
+                        </div>
+
+                        <div class="info-card warning" style="border-left-color: #dd6b20; background: #fffaf0;">
+                            <h3 style="color: #7b341e;">⚠️ Critical Care & Attention Alerts (Water/Soil)</h3>
+                            <ul id="cardAttention"></ul>
+                        </div>
+
                         <div class="info-card">
-                            <h3>🌱 Care Benefits & Uses</h3>
+                            <h3>🌱 Care Benefits & Traditional Uses</h3>
                             <ul id="cardBenefits"></ul>
                         </div>
 
@@ -1241,35 +1251,44 @@
             resultContainer.scrollIntoView({ behavior: 'smooth' });
 
             try {
-                const promptText = `You are Leafy, an expert botanist, home garden specialist, and Ayurvedic herbal doctor.
-Analyze the provided image carefully and identify the exact plant, tree, herb, vegetable, or flower.
-Special focus on home garden plants (Money Plant, Tulsi / Holy Basil, Jasmine, Henna / Mehendi, Oma Valli / Karpooravalli, Rose, Bitter Gourd / Karela, Tomato, Betel Leaf / Paan, Curry Leaf, Neem, Aloe Vera, Hibiscus, etc.).
+                const promptText = `You are Leafy, an expert botanist, home garden specialist, and Ayurvedic doctor adhering strictly to the "plant.md" botanical manual.
+Analyze this plant image and identify the exact species, tree, vegetable, herb, or flower.
+Special expertise in home garden plants (Money Plant, Tulsi, Jasmine, Henna, Oma Valli / Karpooravalli, Rose, Bitter Gourd / Karela, Tomato, Betel Leaf, Curry Leaf, Neem, Aloe Vera, Hibiscus, etc.).
 
-Return ONLY valid, parseable JSON with this exact structure (no markdown fences, no code blocks):
+Return ONLY valid JSON (no markdown formatting, no code fences):
 {
   "common": "Common Name (e.g. Oma Valli / Karpooravalli)",
   "scientific": "Botanical Latin Name (e.g. Coleus amboinicus)",
-  "regional": "Regional / Indian / Traditional names",
-  "badge": "🏡 Verified AI Identification (or appropriate emoji)",
-  "summary": "2-3 sentences explaining what this plant is, its significance in homes or gardens, and its general characteristics.",
+  "regional": "Regional, Indian, and Traditional vernacular names",
+  "badge": "🌿 Verified AI Diagnosis",
+  "summary": "2-3 comprehensive sentences describing what this plant is, its habitat, and natural qualities.",
+  "insects": [
+    "Beneficial species & pollinators it attracts (e.g. honeybees, hoverflies, sunbirds, ladybugs)",
+    "Pests, parasites or harmful insects drawn to it (e.g. mealybugs, aphids, fruit flies, spider mites)",
+    "Natural repelling or companion effects on nearby garden biodiversity"
+  ],
+  "attention": [
+    "Watering diagnostic: Precise overwatering vs underwatering signs (e.g. yellow soft base, mushy stems vs crispy drooping)",
+    "Soil attention: Needs fresh compost, aerating topsoil, repotting, perlite or cocopeat drainage",
+    "Sunlight/climate alert: Scorched leaf edges, lack of blooms due to low sun, or winter frost warning"
+  ],
   "benefits": [
-    "Care benefit or medicinal/Ayurvedic use 1",
-    "Air purification or culinary use 2",
-    "Growth or biodiversity benefit 3"
+    "Traditional, Ayurvedic, herbal, or therapeutic health uses",
+    "Culinary recipes or daily household applications",
+    "Air purifying or aesthetic qualities"
   ],
   "needs": [
-    "Sunlight requirement",
-    "Watering frequency and soil moisture",
-    "Soil type, pot size and drainage",
-    "Fertilizer / organic feeding (e.g. compost, buttermilk, neem cake)"
+    "Sunlight duration (e.g. 5-6 hours direct sun vs bright indirect)",
+    "Watering frequency and schedule",
+    "Ideal soil mix and pot size",
+    "Organic fertilizer booster (e.g. vermicompost, sour buttermilk, neem cake, bone meal)"
   ],
   "warnings": [
-    "Key issue to prevent (e.g. yellow leaves, overwatering, bud drop)",
-    "Pest or disease warning",
-    "Seasonal/pruning advice"
+    "Critical cultivation warning (e.g. prune flower buds, do not wet leaves at night, blossom end rot)",
+    "Common maintenance mistakes to avoid"
   ],
   "dangers": [
-    "Toxicity to pets (cats/dogs) or humans, sap irritations, or child safety caution"
+    "Toxicity alert for pets (cats/dogs) or toddlers (e.g. calcium oxalate crystals, sap irritations, solanine)"
   ]
 }`;
 
@@ -1364,16 +1383,28 @@ Return ONLY valid, parseable JSON with this exact structure (no markdown fences,
             const resultContainer = document.getElementById('resultContainer');
             const plantDetailsCard = document.getElementById('plantDetailsCard');
 
-            document.getElementById('cardBadge').textContent = plant.badge;
+            document.getElementById('cardBadge').textContent = plant.badge || '🌿 Plant Doctor';
             document.getElementById('cardCommon').textContent = plant.common;
             document.getElementById('cardScientific').textContent = plant.scientific;
-            document.getElementById('cardRegional').textContent = plant.regional;
-            document.getElementById('cardSummary').textContent = plant.summary;
+            document.getElementById('cardRegional').textContent = plant.regional || '';
+            document.getElementById('cardSummary').textContent = plant.summary || '';
 
-            populateList('cardBenefits', plant.benefits);
-            populateList('cardNeeds', plant.needs);
-            populateList('cardWarnings', plant.warnings);
-            populateList('cardDangers', plant.dangers);
+            populateList('cardInsects', plant.insects || [
+                "Attracts gentle garden pollinators (honeybees, butterflies)",
+                "Common pests to monitor: Aphids, mealybugs, and spider mites in dry seasons",
+                "Promotes healthy micro-biodiversity in residential gardens"
+            ]);
+
+            populateList('cardAttention', plant.attention || [
+                "Watering: Check top 2 inches of soil; avoid stagnant water in root zone",
+                "Soil: Ensure well-aerated potting mix with organic compost",
+                "Sunlight: Adjust between direct sun and bright filtered light based on leaf response"
+            ]);
+
+            populateList('cardBenefits', plant.benefits || []);
+            populateList('cardNeeds', plant.needs || []);
+            populateList('cardWarnings', plant.warnings || []);
+            populateList('cardDangers', plant.dangers || []);
 
             resultContainer.classList.add('active');
             plantDetailsCard.style.display = 'block';
