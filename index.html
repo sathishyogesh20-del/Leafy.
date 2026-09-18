@@ -53,7 +53,7 @@
             padding-bottom: calc(var(--safe-bottom) + 20px);
         }
 
-        /* Mobile Shell Frame */
+        /* Responsive Application Shell */
         .app-frame {
             width: 100%;
             max-width: 520px;
@@ -64,14 +64,26 @@
             color: var(--text-dark);
             position: relative;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+            transition: max-width 0.3s ease;
         }
 
-        @media (min-width: 540px) {
+        @media (min-width: 640px) {
             .app-frame {
-                min-height: calc(100vh - 40px);
-                margin: 20px 0;
+                max-width: 720px;
+                min-height: calc(100vh - 48px);
+                margin: 24px auto;
                 border-radius: 32px;
                 overflow: hidden;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .app-frame {
+                max-width: 1040px;
+                min-height: calc(100vh - 64px);
+                margin: 32px auto;
+                border-radius: 36px;
+                box-shadow: 0 35px 80px rgba(0, 0, 0, 0.6);
             }
         }
 
@@ -79,7 +91,7 @@
         .app-header {
             background: linear-gradient(135deg, #38a169 0%, #22543d 100%);
             color: #ffffff;
-            padding: 20px 20px 24px;
+            padding: 24px 24px 28px;
             position: relative;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
@@ -744,6 +756,37 @@
             margin-bottom: 20px;
         }
 
+        @media (min-width: 640px) {
+            .plants-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .plants-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 18px;
+            }
+        }
+
+        /* Desktop Result Card Layout Enhancement */
+        @media (min-width: 768px) {
+            .details-grid-layout {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 16px;
+            }
+
+            .captured-preview-wrap {
+                max-height: 340px;
+            }
+
+            .captured-preview-img {
+                height: 320px;
+            }
+        }
+
         .plant-item-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -882,24 +925,26 @@
                         <p class="plant-summary" id="cardSummary"></p>
                     </div>
 
-                    <div class="info-card">
-                        <h3>🌱 Care Benefits & Uses</h3>
-                        <ul id="cardBenefits"></ul>
-                    </div>
+                    <div class="details-grid-layout">
+                        <div class="info-card">
+                            <h3>🌱 Care Benefits & Uses</h3>
+                            <ul id="cardBenefits"></ul>
+                        </div>
 
-                    <div class="info-card">
-                        <h3>💧 Sunlight, Soil & Watering Needs</h3>
-                        <ul id="cardNeeds"></ul>
-                    </div>
+                        <div class="info-card">
+                            <h3>💧 Sunlight, Soil & Watering Needs</h3>
+                            <ul id="cardNeeds"></ul>
+                        </div>
 
-                    <div class="info-card warning">
-                        <h3>⚠️ Important Garden Notes</h3>
-                        <ul id="cardWarnings"></ul>
-                    </div>
+                        <div class="info-card warning">
+                            <h3>⚠️ Important Garden Notes</h3>
+                            <ul id="cardWarnings"></ul>
+                        </div>
 
-                    <div class="info-card danger">
-                        <h3>🚨 Danger Alerts & Safety</h3>
-                        <ul id="cardDangers"></ul>
+                        <div class="info-card danger">
+                            <h3>🚨 Danger Alerts & Safety</h3>
+                            <ul id="cardDangers"></ul>
+                        </div>
                     </div>
 
                     <div class="action-row">
