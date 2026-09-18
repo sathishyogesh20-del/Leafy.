@@ -838,10 +838,30 @@
         /* Footer */
         .app-footer {
             text-align: center;
-            padding: 16px;
-            font-size: 0.8rem;
-            color: #94a3b8;
+            padding: 18px 16px;
+            font-size: 0.825rem;
+            color: #64748b;
             border-top: 1px solid #f1f5f9;
+            line-height: 1.6;
+        }
+
+        .app-footer a.cosmos-link {
+            color: #2f855a;
+            font-weight: 700;
+            text-decoration: none;
+            position: relative;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: #f0fff4;
+            border: 1px solid #c6f6d5;
+            transition: all 0.2s ease;
+        }
+
+        .app-footer a.cosmos-link:hover, .app-footer a.cosmos-link:active {
+            background: #38a169;
+            color: #ffffff;
+            border-color: #38a169;
+            text-decoration: none;
         }
     </style>
 </head>
@@ -983,7 +1003,8 @@
         </main>
 
         <footer class="app-footer">
-            Leafy PWA • Built with 🌱 for Home Gardeners • Works Offline
+            <p>Leafy is an AI application and powered by <a href="https://sathishyogesh20-del.github.io/MY_PORTFOLIO/" target="_blank" rel="noopener noreferrer" class="cosmos-link">cosmos ai</a></p>
+            <p style="font-size: 0.75rem; opacity: 0.7; margin-top: 6px;">Built with 🌱 for Home Gardeners • Works Offline</p>
         </footer>
     </div>
 
