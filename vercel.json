@@ -1,6 +1,11 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/sw.js",
@@ -25,6 +30,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=3600"
+        }
+      ]
+    },
+    {
+      "source": "/api/analyze",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "private, no-store, max-age=0"
         }
       ]
     }
