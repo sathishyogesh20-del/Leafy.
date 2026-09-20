@@ -1,61 +1,28 @@
-// Leafy Service Worker - Offline Caching & Background App Support
-const CACHE_NAME = 'leafy-cache-v5';
-const ASSETS_TO_CACHE = [
-  './',
-  './index.html',
-  './manifest.json',
-  './plants-data.js',
-  './icon-192.svg',
-  './icon-512.svg'
-];
+// Leafy Service Worker — v5
+const CACHE = 'leafy-v5';
+const ASSETS = ['./', './index.html', './manifest.json', './plants-data.js', './icon-192.svg', './icon-512.svg'];
 
-// Install Event - Pre-cache offline assets
-self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log('[Leafy SW] Pre-caching offline resources');
-      return cache.addAll(ASSETS_TO_CACHE);
-    }).then(() => self.skipWaiting())
-  );
-});
+self.addEventListener('install', e => e.waitUntil(
+  caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting())
+));
 
-// Activate Event - Clean up stale caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keyList) => {
-      return Promise.all(
-        keyList.map((key) => {
-          if (key !== CACHE_NAME) {
-            console.log('[Leafy SW] Removing old cache', key);
-            return caches.delete(key);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
+self.addEventListener('activate', e => e.waitUntil(
+  caches.keys().then(keys =>
+    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+  ).then(() => self.clients.claim())
+));
 
-// Fetch Event - Stale-While-Revalidate Strategy
-self.addEventListener('fetch', (event) => {
-  // Only handle GET requests
-  if (event.request.method !== 'GET') return;
-
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      const fetchPromise = fetch(event.request).then((networkResponse) => {
-        if (networkResponse && networkResponse.status === 200) {
-          const responseClone = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(event.request, responseClone);
-          });
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      const live = fetch(e.request).then(res => {
+        if (res?.status === 200) {
+          caches.open(CACHE).then(c => c.put(e.request, res.clone()));
         }
-        return networkResponse;
-      }).catch(() => {
-        // Offline fallback if network fails and nothing in cache
-        return cachedResponse;
-      });
-
-      return cachedResponse || fetchPromise;
+        return res;
+      }).catch(() => cached);
+      return cached || live;
     })
   );
 });

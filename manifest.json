@@ -1,55 +1,17 @@
 {
-  "name": "Leafy - AI Plant Care & Garden Assistant",
+  "name": "Leafy — AI Plant Doctor",
   "short_name": "Leafy",
-  "description": "Mobile Plant Identifier, Live Scanner & Home Garden AI Assistant",
-  "start_url": "/",
-  "scope": "/",
+  "description": "AI Plant Identifier, Live Camera Scanner & Home Garden Doctor powered by Cosmos AI",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#121820",
-  "theme_color": "#2f855a",
+  "background_color": "#0a1a0f",
+  "theme_color": "#0a1a0f",
   "lang": "en",
   "categories": ["lifestyle", "education", "utilities"],
   "icons": [
-    {
-      "src": "/icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Scan Plant",
-      "short_name": "Scan",
-      "description": "Open camera scanner",
-      "url": "/index.html#scan",
-      "icons": [
-        {
-          "src": "./icon-192.svg",
-          "sizes": "192x192"
-        }
-      ]
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "Scan Plant",
-      "short_name": "Scan",
-      "description": "Open camera scanner",
-      "url": "/#scan",
-      "icons": [
-        {
-          "src": "/icon-192.svg",
-          "sizes": "192x192"
-        }
-      ]
-    }
+    { "src": "./icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "./icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any maskable" }
   ]
 }
