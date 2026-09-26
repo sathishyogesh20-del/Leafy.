@@ -3,955 +3,1207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <meta name="theme-color" content="#0a1a0f" />
+  <meta name="theme-color" content="#06120a" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Leafy" />
-  <meta name="description" content="AI Plant Identifier, Live Camera Scanner & Home Garden Doctor — Powered by Cosmos AI" />
-  <title>Leafy — AI Plant Doctor</title>
+  <meta name="description" content="AI Plant Identifier, Live Viewfinder & Home Garden Doctor — Powered by Grok Vision & Cosmos AI" />
+  <title>Leafy — AI Plant Doctor (Apple Edition)</title>
+  
+  <!-- PWA Manifest & Apple Touch Icons -->
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-192.svg" />
   <link rel="icon" type="image/svg+xml" href="./icon-192.svg" />
+  
+  <!-- Apple SF Pro Inspired & Display Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet" />
 
   <style>
-    /* ── TOKENS ─────────────────────────────────────────── */
+    /* ── APPLE GLASS & EMERALD DESIGN SYSTEM ───────────────────────── */
     :root {
-      --g1: #0a1a0f;
-      --g2: #0e2317;
-      --g3: #132d1e;
-      --g4: #1a3d28;
-      --accent: #3ecf72;
-      --accent2: #2fb362;
-      --accent-glow: rgba(62,207,114,0.25);
-      --teal: #0dd4c8;
-      --amber: #f59e0b;
-      --rose: #f43f5e;
-      --card-bg: rgba(255,255,255,0.04);
-      --card-border: rgba(255,255,255,0.09);
-      --text-1: #f0fdf4;
-      --text-2: #a7f3d0;
-      --text-3: #6ee7b7;
-      --text-muted: #52796f;
-      --radius-xl: 24px;
-      --radius-2xl: 32px;
+      --bg-deep: #050d08;
+      --bg-canvas: #09170e;
+      --bg-surface: rgba(22, 45, 30, 0.45);
+      --bg-surface-elevated: rgba(30, 64, 42, 0.55);
+      
+      --accent-emerald: #10b981;
+      --accent-glow: #34d399;
+      --accent-sheen: #6ee7b7;
+      --accent-cyan: #06b6d4;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+
+      --glass-sheen: linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.03) 100%);
+      --glass-border: rgba(255, 255, 255, 0.14);
+      --glass-border-bright: rgba(52, 211, 153, 0.35);
+
+      --text-100: #ffffff;
+      --text-200: #e2fbf0;
+      --text-300: #a7f3d0;
+      --text-muted: #6b8f79;
+
+      --apple-radius-sm: 14px;
+      --apple-radius-md: 20px;
+      --apple-radius-lg: 28px;
+      --apple-radius-xl: 36px;
+
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    *, *::before, *::after {
+      margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
 
     html, body {
-      height:100%;
-      background: var(--g1);
-      color: var(--text-1);
-      font-family: 'Inter', system-ui, sans-serif;
+      min-height: 100%;
+      background: var(--bg-deep);
+      color: var(--text-100);
+      font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', system-ui, sans-serif;
       overflow-x: hidden;
-      overscroll-behavior: none;
+      overscroll-behavior-y: none;
     }
 
-    /* ── ANIMATED BG BLOBS ──────────────────────────────── */
-    .bg-blobs {
-      position: fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;
+    /* ── DYNAMIC 3D ATMOSPHERIC MESH ─────────────────────────────────── */
+    .viewport-bg {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
     }
-    .blob {
-      position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.18;
-      animation: blobFloat 14s ease-in-out infinite alternate;
+    .orb {
+      position: absolute; border-radius: 50%; filter: blur(95px); opacity: 0.22;
+      animation: orbFloat 22s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
     }
-    .blob-1 { width:500px; height:500px; background: radial-gradient(circle, #3ecf72, #0dd4c8); top:-150px; left:-100px; animation-duration:16s; }
-    .blob-2 { width:400px; height:400px; background: radial-gradient(circle, #2fb362, #1a3d28); bottom:-100px; right:-80px; animation-delay:4s; }
-    .blob-3 { width:300px; height:300px; background: radial-gradient(circle, #0dd4c8, #3ecf72); top:40%; left:50%; transform:translateX(-50%); animation-delay:8s; }
-    @keyframes blobFloat {
-      from { transform: scale(1) translate(0,0); }
-      to   { transform: scale(1.2) translate(30px, -40px); }
+    .orb-primary {
+      width: 650px; height: 650px;
+      background: radial-gradient(circle, #059669 0%, #10b981 40%, transparent 70%);
+      top: -180px; left: -140px; animation-duration: 20s;
+    }
+    .orb-secondary {
+      width: 550px; height: 550px;
+      background: radial-gradient(circle, #0891b2 0%, #0d9488 45%, transparent 70%);
+      bottom: -150px; right: -120px; animation-duration: 26s; animation-delay: -6s;
+    }
+    .orb-glow {
+      width: 420px; height: 420px;
+      background: radial-gradient(circle, #34d399 0%, #064e3b 50%, transparent 70%);
+      top: 40%; left: 50%; transform: translate(-50%, -50%);
+      animation-duration: 18s; animation-delay: -10s;
+    }
+    @keyframes orbFloat {
+      0%   { transform: translate(0, 0) scale(1) rotate(0deg); }
+      50%  { transform: translate(60px, -45px) scale(1.15) rotate(45deg); }
+      100% { transform: translate(-40px, 60px) scale(0.92) rotate(-30deg); }
     }
 
-    /* ── SHELL ──────────────────────────────────────────── */
+    /* ── RESPONSIVE SHELL ────────────────────────────────────────────── */
     .app-shell {
-      position: relative; z-index:1;
+      position: relative; z-index: 1;
       max-width: 520px; margin: 0 auto;
       min-height: 100dvh;
       display: flex; flex-direction: column;
+      perspective: 1200px;
     }
     @media (min-width: 640px) {
       .app-shell {
-        max-width: 680px;
-        min-height: calc(100dvh - 32px);
-        margin: 16px auto;
-        border-radius: var(--radius-2xl);
+        max-width: 720px;
+        min-height: calc(100dvh - 36px);
+        margin: 18px auto;
+        border-radius: var(--apple-radius-xl);
+        background: rgba(9, 23, 14, 0.75);
+        backdrop-filter: blur(40px) saturate(180%);
+        -webkit-backdrop-filter: blur(40px) saturate(180%);
+        border: 1px solid var(--glass-border);
+        box-shadow: 0 45px 100px -15px rgba(0, 0, 0, 0.8),
+                    0 0 0 1px rgba(255, 255, 255, 0.08) inset;
         overflow: hidden;
-        box-shadow: 0 40px 80px rgba(0,0,0,0.6), 0 0 0 1px var(--card-border);
-        background: var(--g2);
       }
     }
     @media (min-width: 1024px) {
-      .app-shell { max-width: 1060px; }
+      .app-shell { max-width: 1040px; }
     }
 
-    /* ── TOP BAR ────────────────────────────────────────── */
+    /* ── APPLE GLASS TOP BAR ─────────────────────────────────────────── */
     .topbar {
       display: flex; align-items: center; justify-content: space-between;
-      padding: calc(var(--safe-top) + 14px) 20px 14px;
-      background: linear-gradient(180deg, rgba(10,26,15,0.95) 0%, rgba(10,26,15,0) 100%);
+      padding: calc(var(--safe-top) + 16px) 22px 14px;
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5, 13, 8, 0.65);
+      backdrop-filter: blur(30px) saturate(190%);
+      -webkit-backdrop-filter: blur(30px) saturate(190%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .brand-wrap {
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+    }
+    .brand-squircle {
+      width: 44px; height: 44px; border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #047857);
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35), 0 0 0 1px rgba(255,255,255,0.2) inset;
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .brand-squircle:hover { transform: scale(1.08) rotate(4deg); }
+    .brand-squircle img { width: 32px; height: 32px; }
+
+    .brand-title {
+      font-size: 1.45rem; font-weight: 800; letter-spacing: -0.6px;
+      color: var(--text-100); display: flex; align-items: baseline; gap: 4px;
+    }
+    .brand-title span { color: var(--accent-glow); }
+    .brand-version {
+      font-size: 0.62rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--accent-cyan);
+      background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.25);
+      padding: 2px 6px; border-radius: 6px; margin-left: 2px;
+    }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+    .btn-glass-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.75rem; font-weight: 600; color: var(--text-200);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border);
+      padding: 7px 13px; border-radius: 20px; cursor: pointer;
+      backdrop-filter: blur(16px);
+      transition: all 0.2s ease;
+    }
+    .btn-glass-pill:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+    .btn-glass-pill.online::before {
+      content: ''; width: 7px; height: 7px; border-radius: 50%;
+      background: #10b981; box-shadow: 0 0 8px #10b981;
+    }
+    .btn-glass-pill.settings { font-size: 0.95rem; padding: 7px 11px; }
+
+    /* ── HERO BANNER & 3D FLOATING LEAF ──────────────────────────────── */
+    .hero-container {
+      padding: 28px 24px 20px; text-align: center; position: relative;
+    }
+    .hero-badge-tag {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+      color: var(--accent-glow); margin-bottom: 16px;
+      background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 6px 16px; border-radius: 30px; backdrop-filter: blur(14px);
+    }
+    .hero-badge-tag .pulse-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: var(--accent-glow);
+      box-shadow: 0 0 10px var(--accent-glow);
+      animation: radarPulse 2s infinite;
+    }
+    @keyframes radarPulse {
+      0%   { transform: scale(0.9); opacity: 1; }
+      50%  { transform: scale(1.6); opacity: 0.4; }
+      100% { transform: scale(0.9); opacity: 1; }
+    }
+
+    .hero-heading {
+      font-size: clamp(2.1rem, 6vw, 3.4rem); font-weight: 800;
+      letter-spacing: -1.2px; line-height: 1.1; margin-bottom: 12px;
+      background: linear-gradient(180deg, #ffffff 30%, #a7f3d0 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero-heading em {
+      font-style: italic; font-weight: 700;
+      background: linear-gradient(135deg, #6ee7b7, #10b981);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+
+    .hero-lead {
+      font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;
+      max-width: 440px; margin: 0 auto 22px; font-weight: 400;
+    }
+
+    /* ── SEARCH & FILTER STRIP ───────────────────────────────────────── */
+    .search-dock {
+      margin: 0 20px 18px; position: relative;
+    }
+    .search-dock input {
+      width: 100%; padding: 14px 18px 14px 48px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--apple-radius-md); font-size: 0.92rem;
+      color: var(--text-100); backdrop-filter: blur(20px);
+      outline: none; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .search-dock input::placeholder { color: var(--text-muted); }
+    .search-dock input:focus {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18), 0 10px 25px -5px rgba(0,0,0,0.5);
+    }
+    .search-icon-btn {
+      position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 1.15rem; color: var(--text-muted); pointer-events: none;
+    }
+
+    /* Filter Pills Horizontal Scroll */
+    .filter-track {
+      display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 22px;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .filter-track::-webkit-scrollbar { display: none; }
+    .pill-filter {
+      white-space: nowrap; flex-shrink: 0;
+      padding: 8px 18px; border-radius: 24px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--glass-border);
+      color: var(--text-muted); font-size: 0.82rem; font-weight: 600;
+      cursor: pointer; transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
       backdrop-filter: blur(12px);
-      position: sticky; top:0; z-index: 50;
     }
-    .brand { display:flex; align-items:center; gap:10px; }
-    .brand-leaf { font-size:2rem; filter:drop-shadow(0 0 12px #3ecf72); animation: leafPulse 3s ease-in-out infinite; }
-    @keyframes leafPulse { 0%,100%{filter:drop-shadow(0 0 10px #3ecf72);} 50%{filter:drop-shadow(0 0 22px #3ecf72);} }
-    .brand-text { font-family:'Playfair Display',serif; font-size:1.65rem; font-weight:700; color:var(--text-1); letter-spacing:-0.5px; }
-    .brand-text span { color:var(--accent); }
-    .topbar-right { display:flex; align-items:center; gap:8px; }
-    .pill-status {
-      display:flex; align-items:center; gap:5px;
-      font-size:0.72rem; font-weight:600;
-      padding:5px 11px; border-radius:20px;
-      background:rgba(62,207,114,0.12); border:1px solid rgba(62,207,114,0.25);
-      color:var(--accent);
+    .pill-filter:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-200); transform: translateY(-1px);
     }
-    .pill-status::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--accent); box-shadow:0 0 6px var(--accent); }
-    .pill-status.offline { color:#f43f5e; background:rgba(244,63,94,0.12); border-color:rgba(244,63,94,0.25); }
-    .pill-status.offline::before { background:#f43f5e; box-shadow:0 0 6px #f43f5e; }
-    .btn-install {
-      display:none; font-size:0.75rem; font-weight:700;
-      padding:5px 12px; border-radius:14px; border:none; cursor:pointer;
-      background:linear-gradient(135deg, #f59e0b, #f97316);
-      color:#1c0a00;
+    .pill-filter.active {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff; border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35);
+      transform: translateY(-1px);
     }
 
-    /* ── HERO ───────────────────────────────────────────── */
-    .hero {
-      padding: 28px 20px 24px;
-      text-align: center;
+    /* ── 3D SCANNER ACTION STAGE ─────────────────────────────────────── */
+    .scanner-hero-card {
+      margin: 0 20px 26px;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%);
+      border: 1px solid var(--glass-border-bright);
+      border-radius: var(--apple-radius-xl); padding: 32px 24px;
+      text-align: center; position: relative; overflow: hidden;
+      box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(25px);
     }
-    .hero-eyebrow {
-      display: inline-flex; align-items:center; gap:7px;
-      font-size:0.75rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
-      color:var(--teal); margin-bottom:14px;
-      background:rgba(13,212,200,0.08); border:1px solid rgba(13,212,200,0.2);
-      padding:5px 14px; border-radius:20px;
-    }
-    .hero h1 {
-      font-family:'Playfair Display',serif;
-      font-size:clamp(1.9rem,6vw,2.8rem);
-      font-weight:700; line-height:1.15;
-      color:var(--text-1); margin-bottom:14px;
-    }
-    .hero h1 em { font-style:italic; color:var(--accent); }
-    .hero p {
-      font-size:0.95rem; color:var(--text-muted);
-      line-height:1.6; max-width:380px; margin:0 auto 24px;
+    .scanner-hero-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.18), transparent 70%);
+      pointer-events: none;
     }
 
-    /* ── SEARCH BAR ─────────────────────────────────────── */
-    .search-wrap {
-      position:relative; margin:0 20px 20px;
+    .pulse-optic-chamber {
+      width: 90px; height: 90px; margin: 0 auto 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(16, 185, 129, 0.35) 0%, rgba(6, 78, 59, 0.5) 100%);
+      border: 2px solid rgba(110, 231, 183, 0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.3rem; position: relative;
+      box-shadow: 0 0 35px rgba(16, 185, 129, 0.3);
+      animation: opticFloat 3s ease-in-out infinite alternate;
     }
-    .search-wrap input {
-      width:100%; padding:14px 16px 14px 46px;
-      background:var(--card-bg); border:1px solid var(--card-border);
-      border-radius:16px; font-size:0.9rem;
-      color:var(--text-1); backdrop-filter:blur(12px);
-      outline:none; transition:border-color 0.2s, box-shadow 0.2s;
-    }
-    .search-wrap input::placeholder { color:var(--text-muted); }
-    .search-wrap input:focus { border-color:rgba(62,207,114,0.5); box-shadow:0 0 0 3px rgba(62,207,114,0.1); }
-    .search-icon { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:1.1rem; opacity:0.5; }
-
-    /* ── FILTER CHIPS ───────────────────────────────────── */
-    .filter-row {
-      display:flex; gap:8px; overflow-x:auto;
-      padding:0 20px 16px; scrollbar-width:none;
-    }
-    .filter-row::-webkit-scrollbar { display:none; }
-    .chip {
-      white-space:nowrap; flex-shrink:0;
-      padding:7px 16px; border-radius:20px; border:1px solid var(--card-border);
-      background:var(--card-bg); color:var(--text-muted);
-      font-size:0.8rem; font-weight:600; cursor:pointer;
-      transition:all 0.2s; backdrop-filter:blur(8px);
-    }
-    .chip.active {
-      background:linear-gradient(135deg, var(--accent2), var(--accent));
-      color:#0a1a0f; border-color:transparent;
-      box-shadow:0 4px 14px var(--accent-glow);
+    @keyframes opticFloat {
+      0%   { transform: translateY(0); box-shadow: 0 10px 25px rgba(16, 185, 129, 0.25); }
+      100% { transform: translateY(-8px); box-shadow: 0 18px 45px rgba(52, 211, 153, 0.45); }
     }
 
-    /* ── SCAN CARD ──────────────────────────────────────── */
-    .scan-card {
-      margin:0 20px 24px;
-      background:linear-gradient(135deg, rgba(62,207,114,0.08) 0%, rgba(13,212,200,0.05) 100%);
-      border:1px solid rgba(62,207,114,0.2);
-      border-radius:var(--radius-xl); padding:28px 22px;
-      text-align:center; position:relative; overflow:hidden;
+    .scanner-hero-card h2 {
+      font-size: 1.35rem; font-weight: 800; letter-spacing: -0.4px;
+      margin-bottom: 8px; color: var(--text-100);
     }
-    .scan-card::before {
-      content:''; position:absolute; inset:0;
-      background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233ecf72' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events:none;
-    }
-    .scan-icon-ring {
-      width:80px; height:80px; margin:0 auto 16px;
-      border-radius:50%;
-      background:linear-gradient(135deg, rgba(62,207,114,0.2), rgba(13,212,200,0.15));
-      border:2px solid rgba(62,207,114,0.3);
-      display:flex; align-items:center; justify-content:center;
-      font-size:2rem;
-      box-shadow:0 0 30px rgba(62,207,114,0.2);
-      animation:ringPulse 2.5s ease-in-out infinite;
-    }
-    @keyframes ringPulse {
-      0%,100%{ box-shadow:0 0 20px rgba(62,207,114,0.2); }
-      50%{ box-shadow:0 0 40px rgba(62,207,114,0.35); }
-    }
-    .scan-card h2 { font-size:1.25rem; font-weight:700; margin-bottom:8px; }
-    .scan-card p { font-size:0.88rem; color:var(--text-muted); margin-bottom:22px; line-height:1.5; }
-    .scan-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
-
-    .btn-cam {
-      display:inline-flex; align-items:center; gap:8px;
-      padding:13px 24px; border-radius:14px; border:none; cursor:pointer;
-      font-size:0.95rem; font-weight:700;
-      background:linear-gradient(135deg, #2fb362, #1a9950);
-      color:#ffffff;
-      box-shadow:0 6px 20px rgba(47,179,98,0.35);
-      transition:transform 0.15s, box-shadow 0.15s;
-    }
-    .btn-cam:active { transform:scale(0.97); box-shadow:0 3px 10px rgba(47,179,98,0.25); }
-    .btn-upload {
-      display:inline-flex; align-items:center; gap:8px;
-      padding:13px 20px; border-radius:14px; cursor:pointer;
-      font-size:0.9rem; font-weight:600;
-      background:var(--card-bg); border:1px solid var(--card-border);
-      color:var(--text-2); backdrop-filter:blur(8px);
-      transition:border-color 0.2s;
-    }
-    .btn-upload:hover { border-color:rgba(62,207,114,0.4); }
-    input[type=file] { display:none; }
-
-    /* ── RESULT SECTION ─────────────────────────────────── */
-    .result-section { display:none; padding:0 20px 20px; animation:fadeUp 0.4s ease; }
-    .result-section.active { display:block; }
-    @keyframes fadeUp { from{opacity:0;transform:translateY(16px);} to{opacity:1;transform:translateY(0);} }
-
-    .preview-card {
-      position:relative; border-radius:20px; overflow:hidden;
-      border:1px solid var(--card-border); margin-bottom:20px;
-    }
-    .preview-img { width:100%; height:220px; object-fit:cover; display:block; }
-    .ai-overlay {
-      position:absolute; inset:0;
-      background:rgba(10,26,15,0.88); backdrop-filter:blur(8px);
-      display:none; flex-direction:column; align-items:center; justify-content:center; gap:14px;
-    }
-    .spinner {
-      width:50px; height:50px;
-      border:4px solid rgba(62,207,114,0.2);
-      border-top-color:var(--accent);
-      border-radius:50%; animation:spin 0.75s linear infinite;
-    }
-    @keyframes spin { to{transform:rotate(360deg);} }
-    .ai-status-text { font-size:0.85rem; font-weight:600; color:var(--text-2); }
-    .ai-steps { font-size:0.75rem; color:var(--text-muted); }
-
-    /* ── CONFIDENCE BAR ─────────────────────────────────── */
-    .confidence-row {
-      display:flex; align-items:center; gap:10px; margin-bottom:16px;
-      padding:10px 14px; border-radius:12px;
-      background:rgba(62,207,114,0.06); border:1px solid rgba(62,207,114,0.15);
-    }
-    .conf-label { font-size:0.78rem; color:var(--text-muted); white-space:nowrap; }
-    .conf-bar { flex:1; height:6px; background:rgba(255,255,255,0.08); border-radius:6px; overflow:hidden; }
-    .conf-fill { height:100%; border-radius:6px; background:linear-gradient(90deg,var(--accent2),var(--accent)); transition:width 1.2s cubic-bezier(.4,0,.2,1); }
-    .conf-pct { font-size:0.82rem; font-weight:700; color:var(--accent); white-space:nowrap; }
-
-    /* ── PLANT HERO ─────────────────────────────────────── */
-    .plant-hero {
-      border-radius:var(--radius-xl); overflow:hidden;
-      background:linear-gradient(135deg, var(--g3), var(--g4));
-      border:1px solid rgba(62,207,114,0.2);
-      padding:22px 20px; margin-bottom:16px;
-      position:relative;
-    }
-    .plant-hero::after {
-      content:''; position:absolute; top:0; right:0;
-      width:160px; height:160px;
-      background:radial-gradient(circle at 80% 20%, rgba(62,207,114,0.12), transparent 70%);
-      pointer-events:none;
-    }
-    .plant-badge {
-      display:inline-flex; align-items:center; gap:5px;
-      font-size:0.7rem; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;
-      background:rgba(62,207,114,0.15); border:1px solid rgba(62,207,114,0.3);
-      color:var(--accent); padding:4px 10px; border-radius:20px; margin-bottom:12px;
-    }
-    .plant-common { font-family:'Playfair Display',serif; font-size:2rem; font-weight:700; line-height:1.1; margin-bottom:5px; }
-    .plant-sci { font-style:italic; font-size:0.9rem; color:var(--text-3); margin-bottom:4px; }
-    .plant-regional { font-size:0.82rem; color:var(--text-muted); margin-bottom:12px; }
-    .plant-summary { font-size:0.87rem; color:var(--text-2); line-height:1.6; border-top:1px solid rgba(255,255,255,0.08); padding-top:12px; }
-
-    /* ── DIAGNOSTIC GRID ────────────────────────────────── */
-    .diag-grid {
-      display:grid;
-      grid-template-columns:1fr;
-      gap:12px; margin-bottom:16px;
-    }
-    @media (min-width:600px) { .diag-grid { grid-template-columns:1fr 1fr; } }
-
-    .diag-card {
-      background:var(--card-bg); border:1px solid var(--card-border);
-      border-radius:18px; padding:16px;
-      backdrop-filter:blur(10px);
-      transition:border-color 0.2s;
-    }
-    .diag-card:hover { border-color:rgba(62,207,114,0.25); }
-    .diag-card.teal   { border-left:4px solid var(--teal);  background:rgba(13,212,200,0.04); }
-    .diag-card.amber  { border-left:4px solid var(--amber); background:rgba(245,158,11,0.04); }
-    .diag-card.green  { border-left:4px solid var(--accent);background:rgba(62,207,114,0.04); }
-    .diag-card.rose   { border-left:4px solid var(--rose);  background:rgba(244,63,94,0.04); }
-
-    .diag-title {
-      display:flex; align-items:center; gap:7px;
-      font-size:0.85rem; font-weight:700; margin-bottom:10px;
-    }
-    .diag-title.teal  { color:var(--teal); }
-    .diag-title.amber { color:var(--amber); }
-    .diag-title.green { color:var(--accent); }
-    .diag-title.rose  { color:var(--rose); }
-
-    .diag-list { list-style:none; display:flex; flex-direction:column; gap:6px; }
-    .diag-list li {
-      font-size:0.83rem; color:rgba(240,253,244,0.8); line-height:1.5;
-      padding-left:18px; position:relative;
-    }
-    .diag-list li::before { content:'›'; position:absolute; left:0; font-weight:800; opacity:0.6; }
-
-    /* ── VISION INSIGHT BADGE ───────────────────────────── */
-    .vision-insights {
-      display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px;
-    }
-    .insight-tag {
-      display:inline-flex; align-items:center; gap:5px;
-      font-size:0.74rem; font-weight:600;
-      padding:4px 10px; border-radius:20px;
-      border:1px solid var(--card-border);
-      background:var(--card-bg);
-      color:var(--text-2);
+    .scanner-hero-card p {
+      font-size: 0.9rem; color: var(--text-muted); line-height: 1.5;
+      max-width: 400px; margin: 0 auto 24px;
     }
 
-    /* ── ACTION ROW ─────────────────────────────────────── */
-    .action-row { display:flex; gap:10px; margin-top:6px; }
-    .btn-action-primary {
-      flex:1; padding:14px; border-radius:14px; border:none; cursor:pointer;
-      background:linear-gradient(135deg, var(--accent2), var(--accent));
-      color:#0a1a0f; font-weight:700; font-size:0.9rem;
-      display:flex; align-items:center; justify-content:center; gap:7px;
-      box-shadow:0 4px 16px var(--accent-glow);
-      transition:transform 0.15s;
+    .btn-group-scan {
+      display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
     }
-    .btn-action-primary:active { transform:scale(0.97); }
-    .btn-action-ghost {
-      flex:1; padding:14px; border-radius:14px; cursor:pointer;
-      background:var(--card-bg); border:1px solid var(--card-border);
-      color:var(--text-2); font-weight:600; font-size:0.9rem;
-      display:flex; align-items:center; justify-content:center; gap:7px;
-      backdrop-filter:blur(8px);
+    .btn-apple-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 15px 28px; border-radius: var(--apple-radius-md);
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff; font-size: 0.96rem; font-weight: 700;
+      border: 1px solid rgba(255, 255, 255, 0.2); cursor: pointer;
+      box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-apple-primary:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 32px rgba(16, 185, 129, 0.5);
+    }
+    .btn-apple-primary:active { transform: scale(0.98); }
+
+    .btn-apple-glass {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 15px 22px; border-radius: var(--apple-radius-md);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--glass-border);
+      color: var(--text-200); font-size: 0.92rem; font-weight: 600;
+      cursor: pointer; backdrop-filter: blur(16px);
+      transition: all 0.2s ease;
+    }
+    .btn-apple-glass:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
     }
 
-    /* ── EXPLORER SECTION ───────────────────────────────── */
-    .explorer { padding:0 20px 32px; }
-    .section-head {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-bottom:16px;
+    /* ── RESULT & VISION ANALYSIS SECTION ───────────────────────────── */
+    .result-section {
+      display: none; padding: 0 20px 26px; animation: slideUpApple 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
-    .section-head h3 { font-size:1.05rem; font-weight:700; }
-    .section-head span { font-size:0.78rem; color:var(--text-muted); }
-
-    .plants-grid {
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:10px;
-    }
-    @media (min-width:520px) { .plants-grid { grid-template-columns:repeat(3,1fr); } }
-    @media (min-width:900px) { .plants-grid { grid-template-columns:repeat(4,1fr); } }
-
-    .plant-tile {
-      background:var(--card-bg); border:1px solid var(--card-border);
-      border-radius:18px; padding:14px; cursor:pointer;
-      display:flex; flex-direction:column; gap:6px;
-      backdrop-filter:blur(8px);
-      transition:transform 0.18s, border-color 0.18s, box-shadow 0.18s;
-    }
-    .plant-tile:hover { transform:translateY(-3px); border-color:rgba(62,207,114,0.35); box-shadow:0 8px 24px rgba(62,207,114,0.1); }
-    .plant-tile:active { transform:scale(0.97); }
-    .tile-icon { font-size:2rem; }
-    .tile-name { font-size:0.88rem; font-weight:700; color:var(--text-1); line-height:1.2; }
-    .tile-sci { font-size:0.7rem; font-style:italic; color:var(--text-muted); }
-    .tile-chip {
-      display:inline-block; font-size:0.65rem; font-weight:700;
-      padding:2px 7px; border-radius:8px;
-      background:rgba(62,207,114,0.12); border:1px solid rgba(62,207,114,0.2);
-      color:var(--accent); margin-top:4px;
+    .result-section.active { display: block; }
+    @keyframes slideUpApple {
+      from { opacity: 0; transform: translateY(30px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* ── FOOTER ─────────────────────────────────────────── */
-    .footer {
-      text-align:center; padding:20px 20px calc(var(--safe-bottom) + 20px);
-      border-top:1px solid var(--card-border);
-      font-size:0.82rem; color:var(--text-muted); line-height:1.8;
+    .preview-card-wrap {
+      position: relative; border-radius: var(--apple-radius-lg); overflow: hidden;
+      border: 1px solid var(--glass-border); margin-bottom: 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      max-height: 320px;
     }
-    .cosmos-link {
-      color:var(--accent); font-weight:700; text-decoration:none;
-      padding:2px 7px; border-radius:6px;
-      background:rgba(62,207,114,0.1); border:1px solid rgba(62,207,114,0.25);
-      transition:all 0.2s;
-    }
-    .cosmos-link:hover { background:var(--accent); color:#0a1a0f; }
+    .preview-img { width: 100%; height: 260px; object-fit: cover; display: block; }
 
-    /* ── VIEWFINDER MODAL ───────────────────────────────── */
-    .vf-modal {
-      position:fixed; inset:0; z-index:9000; background:#000;
-      display:none; flex-direction:column;
+    .ai-scanning-overlay {
+      position: absolute; inset: 0;
+      background: rgba(5, 13, 8, 0.88); backdrop-filter: blur(16px);
+      display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
     }
-    .vf-modal.open { display:flex; }
+    .apple-spinner {
+      width: 56px; height: 56px; border-radius: 50%;
+      border: 4px solid rgba(16, 185, 129, 0.15);
+      border-top-color: var(--accent-glow);
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .ai-status-text { font-size: 0.95rem; font-weight: 700; color: var(--text-100); }
+    .ai-status-sub { font-size: 0.78rem; color: var(--text-muted); }
 
-    .vf-topbar {
-      position:absolute; top:0; left:0; right:0; z-index:10;
-      padding:calc(var(--safe-top) + 16px) 20px 16px;
-      display:flex; justify-content:space-between; align-items:center;
-      background:linear-gradient(180deg, rgba(0,0,0,0.7) 0%, transparent 100%);
+    /* Confidence Meter */
+    .confidence-strip {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 18px;
+      padding: 12px 18px; border-radius: var(--apple-radius-sm);
+      background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2);
     }
-    .vf-label { color:#fff; font-size:0.9rem; font-weight:600; display:flex; align-items:center; gap:8px; }
-    .vf-dot { width:8px; height:8px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); animation:dotBlink 1.2s ease infinite; }
-    @keyframes dotBlink { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
-    .vf-close {
-      width:40px; height:40px; border-radius:50%; border:none;
-      background:rgba(255,255,255,0.15); color:#fff; font-size:1.2rem;
-      cursor:pointer; backdrop-filter:blur(8px);
-      display:flex; align-items:center; justify-content:center;
+    .conf-label { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; font-weight: 600; }
+    .conf-track { flex: 1; height: 8px; background: rgba(255, 255, 255, 0.08); border-radius: 8px; overflow: hidden; }
+    .conf-bar {
+      height: 100%; border-radius: 8px;
+      background: linear-gradient(90deg, #059669, #34d399);
+      transition: width 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .conf-val { font-size: 0.88rem; font-weight: 800; color: var(--accent-glow); }
+
+    /* Plant Hero Card */
+    .plant-hero-card {
+      border-radius: var(--apple-radius-lg); overflow: hidden;
+      background: linear-gradient(135deg, rgba(22, 55, 36, 0.8) 0%, rgba(9, 29, 18, 0.9) 100%);
+      border: 1px solid var(--glass-border-bright);
+      padding: 26px 22px; margin-bottom: 18px; position: relative;
+    }
+    .plant-hero-card::after {
+      content: ''; position: absolute; top: -50px; right: -50px;
+      width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(52, 211, 153, 0.25), transparent 70%);
+      pointer-events: none;
+    }
+    .plant-pill-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+      background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.35);
+      color: var(--accent-glow); padding: 5px 12px; border-radius: 20px; margin-bottom: 14px;
+    }
+    .plant-common-title {
+      font-size: 2.2rem; font-weight: 800; letter-spacing: -0.8px;
+      line-height: 1.15; margin-bottom: 6px;
+    }
+    .plant-sci-title { font-style: italic; font-size: 0.98rem; color: var(--accent-sheen); margin-bottom: 4px; }
+    .plant-regional-title { font-size: 0.86rem; color: var(--text-muted); margin-bottom: 14px; }
+    .plant-summary-text {
+      font-size: 0.9rem; color: var(--text-200); line-height: 1.6;
+      border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 14px;
     }
 
-    .vf-video-wrap { position:absolute; inset:0; overflow:hidden; }
-    #cameraFeed { width:100%; height:100%; object-fit:cover; }
-
-    /* Scanner reticle */
-    .vf-reticle {
-      position:absolute; top:50%; left:50%; transform:translate(-50%,-55%);
-      width:72%; max-width:320px; aspect-ratio:1/1.1;
-      box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
-      border:2px solid rgba(62,207,114,0.6); border-radius:20px;
-      pointer-events:none; overflow:hidden;
+    /* Vision Tags */
+    .vision-tags-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px;
     }
-    .vf-corner { position:absolute; width:28px; height:28px; border-color:var(--accent); border-style:solid; }
-    .vf-corner.tl { top:-1px;left:-1px; border-width:4px 0 0 4px; border-radius:18px 0 0 0; }
-    .vf-corner.tr { top:-1px;right:-1px; border-width:4px 4px 0 0; border-radius:0 18px 0 0; }
-    .vf-corner.bl { bottom:-1px;left:-1px; border-width:0 0 4px 4px; border-radius:0 0 0 18px; }
-    .vf-corner.br { bottom:-1px;right:-1px; border-width:0 4px 4px 0; border-radius:0 0 18px 0; }
-    .vf-laser {
-      position:absolute; left:4%; right:4%; height:2px;
-      background:linear-gradient(90deg, transparent, var(--accent), #fff, var(--accent), transparent);
-      box-shadow:0 0 14px var(--accent);
-      animation:laserMove 2.5s ease-in-out infinite alternate;
-    }
-    @keyframes laserMove { from{top:5%;} to{top:92%;} }
-    .vf-hint {
-      position:absolute; bottom:12px; left:50%; transform:translateX(-50%);
-      font-size:0.7rem; letter-spacing:1px; color:var(--accent);
-      white-space:nowrap; font-weight:600;
+    .vision-tag-pill {
+      font-size: 0.76rem; font-weight: 600; padding: 5px 12px; border-radius: 20px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      color: var(--text-200);
     }
 
-    /* Organ selector */
-    .organ-select {
-      position:absolute; top:calc(var(--safe-top) + 70px); left:50%; transform:translateX(-50%);
-      display:flex; gap:6px; z-index:11;
+    /* 6-Card Bento Diagnostic Grid */
+    .bento-diagnostic-grid {
+      display: grid; grid-template-columns: 1fr; gap: 14px; margin-bottom: 22px;
     }
-    .organ-btn {
-      padding:5px 12px; border-radius:14px; border:1px solid rgba(255,255,255,0.25);
-      background:rgba(0,0,0,0.5); color:#fff; font-size:0.72rem; font-weight:600;
-      cursor:pointer; backdrop-filter:blur(8px); transition:all 0.2s;
+    @media (min-width: 600px) {
+      .bento-diagnostic-grid { grid-template-columns: 1fr 1fr; }
     }
-    .organ-btn.active { background:var(--accent); color:#0a1a0f; border-color:var(--accent); }
 
-    .vf-bottombar {
-      position:absolute; bottom:0; left:0; right:0; z-index:10;
-      padding:20px 32px calc(var(--safe-bottom) + 24px);
-      display:flex; justify-content:space-around; align-items:center;
-      background:linear-gradient(0deg, rgba(0,0,0,0.75) 0%, transparent 100%);
+    .bento-card {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--apple-radius-md); padding: 18px;
+      backdrop-filter: blur(20px);
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .vf-tool {
-      width:46px; height:46px; border-radius:50%; border:none;
-      background:rgba(255,255,255,0.15); color:#fff; font-size:1.25rem;
-      cursor:pointer; backdrop-filter:blur(8px);
-      display:flex; align-items:center; justify-content:center;
+    .bento-card:hover {
+      border-color: rgba(52, 211, 153, 0.3);
+      transform: translateY(-2px);
     }
-    .vf-shutter-ring {
-      width:76px; height:76px; border-radius:50%;
-      border:3px solid rgba(255,255,255,0.8);
-      display:flex; align-items:center; justify-content:center; cursor:pointer;
-    }
-    .vf-shutter-btn {
-      width:60px; height:60px; border-radius:50%;
-      background:var(--accent); border:3px solid #fff;
-      transition:transform 0.12s, background 0.12s;
-    }
-    .vf-shutter-ring:active .vf-shutter-btn { transform:scale(0.85); background:var(--accent2); }
+    .bento-card.teal   { border-left: 4px solid var(--accent-cyan);  background: rgba(6, 182, 212, 0.04); }
+    .bento-card.amber  { border-left: 4px solid var(--accent-amber); background: rgba(245, 158, 11, 0.04); }
+    .bento-card.emerald{ border-left: 4px solid var(--accent-glow);  background: rgba(16, 185, 129, 0.04); }
+    .bento-card.rose   { border-left: 4px solid var(--accent-rose);   background: rgba(244, 63, 94, 0.04); }
 
-    /* ── TOAST ──────────────────────────────────────────── */
-    .toast-wrap { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:9999; }
-    .toast {
-      background:rgba(30,40,35,0.95); border:1px solid var(--card-border);
-      color:var(--text-1); font-size:0.85rem; font-weight:500;
-      padding:10px 20px; border-radius:14px; backdrop-filter:blur(12px);
-      box-shadow:0 8px 24px rgba(0,0,0,0.5);
-      opacity:0; transform:translateY(8px);
-      transition:all 0.3s ease;
-      pointer-events:none; white-space:nowrap;
+    .bento-card-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.88rem; font-weight: 700; margin-bottom: 12px;
     }
-    .toast.show { opacity:1; transform:translateY(0); }
+    .bento-card-title.teal   { color: var(--accent-cyan); }
+    .bento-card-title.amber  { color: var(--accent-amber); }
+    .bento-card-title.emerald{ color: var(--accent-glow); }
+    .bento-card-title.rose   { color: var(--accent-rose); }
 
-    /* ── CANVAS HIDDEN ──────────────────────────────────── */
-    #snapCanvas { display:none; }
+    .bento-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+    .bento-list li {
+      font-size: 0.85rem; color: rgba(240, 253, 244, 0.85); line-height: 1.5;
+      padding-left: 18px; position: relative;
+    }
+    .bento-list li::before {
+      content: '›'; position: absolute; left: 0; font-size: 1.1rem;
+      font-weight: 800; color: var(--accent-glow); opacity: 0.8;
+    }
+
+    /* Actions */
+    .diag-actions { display: flex; gap: 12px; }
+    .btn-diag-rescan {
+      flex: 1; padding: 15px; border-radius: var(--apple-radius-sm); border: none;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.35);
+    }
+    .btn-diag-close {
+      flex: 1; padding: 15px; border-radius: var(--apple-radius-sm);
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      color: var(--text-200); font-weight: 600; font-size: 0.95rem; cursor: pointer;
+      backdrop-filter: blur(12px);
+    }
+
+    /* ── PLANT EXPLORER GRID ─────────────────────────────────────────── */
+    .explorer-wrap { padding: 0 20px 36px; }
+    .explorer-head {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .explorer-head h3 { font-size: 1.15rem; font-weight: 800; letter-spacing: -0.3px; }
+    .explorer-head span { font-size: 0.82rem; color: var(--text-muted); }
+
+    .plants-card-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    }
+    @media (min-width: 540px) { .plants-card-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+    @media (min-width: 900px) { .plants-card-grid { grid-template-columns: repeat(4, 1fr); gap: 16px; } }
+
+    .plant-tile-card {
+      background: rgba(255, 255, 255, 0.035);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--apple-radius-md); padding: 16px;
+      cursor: pointer; display: flex; flex-direction: column; gap: 8px;
+      backdrop-filter: blur(14px);
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .plant-tile-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: var(--glass-border-bright);
+      box-shadow: 0 16px 36px -10px rgba(16, 185, 129, 0.2);
+    }
+    .plant-tile-card:active { transform: scale(0.97); }
+    .tile-emoji { font-size: 2.2rem; }
+    .tile-heading { font-size: 0.95rem; font-weight: 800; color: var(--text-100); line-height: 1.25; }
+    .tile-latin { font-size: 0.74rem; font-style: italic; color: var(--text-muted); }
+    .tile-tag-badge {
+      display: inline-block; font-size: 0.68rem; font-weight: 700;
+      padding: 3px 9px; border-radius: 10px;
+      background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.25);
+      color: var(--accent-glow); margin-top: auto; align-self: flex-start;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────────────────── */
+    .apple-footer {
+      text-align: center; padding: 24px 20px calc(var(--safe-bottom) + 26px);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 0.85rem; color: var(--text-muted); line-height: 1.8;
+    }
+    .cosmos-ai-highlight {
+      color: var(--accent-glow); font-weight: 800; text-decoration: none;
+      padding: 3px 9px; border-radius: 8px;
+      background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28);
+      transition: all 0.2s ease;
+    }
+    .cosmos-ai-highlight:hover {
+      background: var(--accent-glow); color: #042f1b;
+      box-shadow: 0 0 15px rgba(52, 211, 153, 0.4);
+    }
+
+    /* ── APPLE LIVE VIEWFINDER MODAL ─────────────────────────────────── */
+    .apple-viewfinder-modal {
+      position: fixed; inset: 0; z-index: 9000; background: #000;
+      display: none; flex-direction: column;
+    }
+    .apple-viewfinder-modal.open { display: flex; }
+
+    .vf-hud-top {
+      position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+      padding: calc(var(--safe-top) + 16px) 20px 16px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+    }
+    .vf-status-indicator {
+      display: flex; align-items: center; gap: 8px;
+      color: #fff; font-size: 0.88rem; font-weight: 600;
+    }
+    .vf-status-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--accent-glow); box-shadow: 0 0 10px var(--accent-glow);
+    }
+    .btn-vf-close {
+      width: 42px; height: 42px; border-radius: 50%; border: none;
+      background: rgba(255, 255, 255, 0.18); color: #fff; font-size: 1.2rem;
+      cursor: pointer; backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .vf-stream-container { position: absolute; inset: 0; overflow: hidden; }
+    #cameraFeedVideo { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Futuristic Apple Intelligence Reticle */
+    .vf-optic-reticle {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);
+      width: 76%; max-width: 330px; aspect-ratio: 1 / 1.15;
+      box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+      border: 2px dashed rgba(52, 211, 153, 0.6);
+      border-radius: var(--apple-radius-lg); pointer-events: none; overflow: hidden;
+    }
+    .corner-bracket {
+      position: absolute; width: 32px; height: 32px;
+      border-color: var(--accent-glow); border-style: solid;
+    }
+    .corner-bracket.tl { top: -2px; left: -2px; border-width: 5px 0 0 5px; border-radius: var(--apple-radius-lg) 0 0 0; }
+    .corner-bracket.tr { top: -2px; right: -2px; border-width: 5px 5px 0 0; border-radius: 0 var(--apple-radius-lg) 0 0; }
+    .corner-bracket.bl { bottom: -2px; left: -2px; border-width: 0 0 5px 5px; border-radius: 0 0 0 var(--apple-radius-lg); }
+    .corner-bracket.br { bottom: -2px; right: -2px; border-width: 0 5px 5px 0; border-radius: 0 0 var(--apple-radius-lg) 0; }
+
+    .vf-emerald-laser {
+      position: absolute; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent-glow), #ffffff, var(--accent-glow), transparent);
+      box-shadow: 0 0 18px var(--accent-glow);
+      animation: laserSweep 2.4s ease-in-out infinite alternate;
+    }
+    @keyframes laserSweep { from { top: 4%; } to { top: 94%; } }
+
+    .vf-tip-caption {
+      position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+      font-size: 0.72rem; letter-spacing: 1px; color: var(--accent-sheen);
+      font-weight: 700; white-space: nowrap; text-transform: uppercase;
+      background: rgba(0, 0, 0, 0.6); padding: 4px 12px; border-radius: 20px;
+    }
+
+    /* Organ Selector */
+    .vf-organ-dock {
+      position: absolute; top: calc(var(--safe-top) + 72px); left: 50%; transform: translateX(-50%);
+      display: flex; gap: 6px; z-index: 11;
+    }
+    .btn-organ-pill {
+      padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.55); color: #fff; font-size: 0.74rem; font-weight: 600;
+      cursor: pointer; backdrop-filter: blur(12px); transition: all 0.2s;
+    }
+    .btn-organ-pill.active {
+      background: var(--accent-glow); color: #022c22;
+      border-color: var(--accent-glow); font-weight: 800;
+      box-shadow: 0 0 15px rgba(52, 211, 153, 0.5);
+    }
+
+    /* Viewfinder Bottom Bar */
+    .vf-hud-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+      padding: 24px 32px calc(var(--safe-bottom) + 26px);
+      display: flex; justify-content: space-around; align-items: center;
+      background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+    }
+    .btn-vf-round {
+      width: 48px; height: 48px; border-radius: 50%; border: none;
+      background: rgba(255, 255, 255, 0.18); color: #fff; font-size: 1.3rem;
+      cursor: pointer; backdrop-filter: blur(12px);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .apple-shutter-ring {
+      width: 82px; height: 82px; border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.9);
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.5);
+    }
+    .apple-shutter-core {
+      width: 66px; height: 66px; border-radius: 50%;
+      background: #ffffff; transition: transform 0.12s, background 0.12s;
+    }
+    .apple-shutter-ring:active .apple-shutter-core {
+      transform: scale(0.85); background: var(--accent-glow);
+    }
+
+    /* ── SETTINGS MODAL ──────────────────────────────────────────────── */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 9990;
+      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px);
+      display: none; align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: flex; }
+    .apple-settings-card {
+      width: 100%; max-width: 460px;
+      background: rgba(15, 33, 22, 0.95);
+      border: 1px solid var(--glass-border-bright);
+      border-radius: var(--apple-radius-xl); padding: 28px 24px;
+      box-shadow: 0 35px 80px rgba(0, 0, 0, 0.8);
+      position: relative;
+    }
+    .settings-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
+    .settings-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-200);
+      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px;
+    }
+    .form-group select, .form-group input {
+      width: 100%; padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
+      border-radius: var(--apple-radius-sm); font-size: 0.9rem; color: #fff;
+      outline: none;
+    }
+    .form-group select option { background: #0a1a0f; color: #fff; }
+    .settings-footer { display: flex; gap: 10px; margin-top: 24px; }
+
+    /* ── TOAST NOTIFICATION ─────────────────────────────────────────── */
+    .toast-capsule {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px);
+      z-index: 9999; opacity: 0; pointer-events: none;
+      background: rgba(18, 42, 28, 0.96);
+      border: 1px solid var(--glass-border-bright);
+      color: var(--text-100); font-size: 0.86rem; font-weight: 600;
+      padding: 12px 24px; border-radius: 24px; backdrop-filter: blur(20px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      white-space: nowrap;
+    }
+    .toast-capsule.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
 </head>
 <body>
 
-  <!-- Ambient Background -->
-  <div class="bg-blobs">
-    <div class="blob blob-1"></div>
-    <div class="blob blob-2"></div>
-    <div class="blob blob-3"></div>
+  <!-- Dynamic Atmospheric Light Background -->
+  <div class="viewport-bg">
+    <div class="orb orb-primary"></div>
+    <div class="orb orb-secondary"></div>
+    <div class="orb orb-glow"></div>
   </div>
 
   <div class="app-shell">
 
-    <!-- TOP BAR -->
+    <!-- APPLE TOP NAVIGATION BAR -->
     <header class="topbar">
-      <div class="brand">
-        <span class="brand-leaf">🌿</span>
-        <span class="brand-text">Lea<span>fy</span></span>
+      <div class="brand-wrap" onclick="location.reload()">
+        <div class="brand-squircle">
+          <svg viewBox="0 0 192 192" width="28" height="28">
+            <path d="M 96 35 C 130 35 155 65 155 105 C 155 145 120 165 96 168 C 72 165 37 145 37 105 C 37 65 62 35 96 35 Z" fill="#ffffff"/>
+            <path d="M 96 50 C 93 85 93 130 96 158" stroke="#059669" stroke-width="4.5" stroke-linecap="round"/>
+            <line x1="30" y1="96" x2="162" y2="96" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="brand-title">Lea<span>fy</span> <span class="brand-version" id="activeModelBadge">Grok Vision</span></div>
       </div>
-      <div class="topbar-right">
-        <span class="pill-status" id="connStatus">Online</span>
-        <button class="btn-install" id="installBtn">📲 Install</button>
+      <div class="topbar-actions">
+        <span class="btn-glass-pill online" id="connectionBadge">Online</span>
+        <button class="btn-glass-pill settings" onclick="openSettingsModal()" title="AI Model Settings">⚙️</button>
+        <button class="btn-glass-pill" id="pwaInstallBtn" style="display:none">📲 Install</button>
       </div>
     </header>
 
-    <!-- HERO -->
-    <section class="hero">
-      <div class="hero-eyebrow">✨ AI-Powered Plant Doctor</div>
-      <h1>Identify Any Plant<br/><em>Instantly</em></h1>
-      <p>Point your camera at any leaf, flower, herb or vegetable. Leafy AI gives you a full health report in seconds.</p>
+    <!-- HERO PROJECTION -->
+    <section class="hero-container">
+      <div class="hero-badge-tag"><div class="pulse-dot"></div> Powered by Grok Vision & Cosmos AI</div>
+      <h1 class="hero-heading">Instant Plant Doctor<br/><em>Designed for Precision</em></h1>
+      <p class="hero-lead">Scan any garden leaf, medicinal herb, vegetable, or flower. Leafy analyzes pests, pollinators, watering, and care in real-time.</p>
     </section>
 
-    <!-- SEARCH -->
-    <div class="search-wrap">
-      <span class="search-icon">🔍</span>
-      <input type="text" id="plantSearch" placeholder="Search Tulsi, Money Plant, Rose, Henna…" oninput="handleSearch(this.value)" />
+    <!-- SEARCH DOCK -->
+    <div class="search-dock">
+      <span class="search-icon-btn">🔍</span>
+      <input type="text" id="plantSearchInput" placeholder="Search Tulsi, Money Plant, Rose, Oma Valli, Tomato…" oninput="filterPlantSearch(this.value)" />
     </div>
 
-    <!-- FILTER CHIPS -->
-    <div class="filter-row" id="filterRow">
-      <button class="chip active" data-type="all"        onclick="filterBy('all')">All</button>
-      <button class="chip"        data-type="homegarden"  onclick="filterBy('homegarden')">🏡 Home Garden</button>
-      <button class="chip"        data-type="herb"        onclick="filterBy('herb')">🌿 Herbs</button>
-      <button class="chip"        data-type="vegetable"   onclick="filterBy('vegetable')">🥬 Veggies</button>
-      <button class="chip"        data-type="flowering"   onclick="filterBy('flowering')">🌸 Flowers</button>
-      <button class="chip"        data-type="houseplant"  onclick="filterBy('houseplant')">🪴 Indoor</button>
-      <button class="chip"        data-type="succulent"   onclick="filterBy('succulent')">🌵 Succulents</button>
-      <button class="chip"        data-type="tree"        onclick="filterBy('tree')">🌳 Trees</button>
+    <!-- CATEGORY FILTER STRIP -->
+    <div class="filter-track" id="categoryFilterTrack">
+      <button class="pill-filter active" data-type="all" onclick="applyCategoryFilter('all')">All Species</button>
+      <button class="pill-filter" data-type="homegarden" onclick="applyCategoryFilter('homegarden')">🏡 Home Garden</button>
+      <button class="pill-filter" data-type="herb" onclick="applyCategoryFilter('herb')">🌿 Ayurvedic Herbs</button>
+      <button class="pill-filter" data-type="vegetable" onclick="applyCategoryFilter('vegetable')">🥬 Vegetables</button>
+      <button class="pill-filter" data-type="flowering" onclick="applyCategoryFilter('flowering')">🌸 Flowering</button>
+      <button class="pill-filter" data-type="houseplant" onclick="applyCategoryFilter('houseplant')">🪴 Indoor Foliage</button>
+      <button class="pill-filter" data-type="succulent" onclick="applyCategoryFilter('succulent')">🌵 Succulents</button>
+      <button class="pill-filter" data-type="tree" onclick="applyCategoryFilter('tree')">🌳 Trees</button>
     </div>
 
-    <!-- SCAN CARD -->
-    <section class="scan-card">
-      <div class="scan-icon-ring">📸</div>
-      <h2>Scan Your Plant</h2>
-      <p>Use the live viewfinder or upload a photo to get an AI-powered health diagnosis and botanical report.</p>
-      <div class="scan-btns">
-        <button class="btn-cam" onclick="openCamera()">
+    <!-- 3D SCANNER CARD -->
+    <section class="scanner-hero-card">
+      <div class="pulse-optic-chamber">📸</div>
+      <h2>AI Vision Viewfinder</h2>
+      <p>Point your device at any specimen or select a gallery photo for deep multi-spectral botanical diagnosis.</p>
+      <div class="btn-group-scan">
+        <button class="btn-apple-primary" onclick="launchViewfinder()">
           <span>📷</span> Live Camera
         </button>
-        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+        <button class="btn-apple-glass" onclick="document.getElementById('hiddenFileInput').click()">
           <span>🖼️</span> Upload Photo
         </button>
-        <input type="file" id="fileInput" accept="image/*" onchange="handleUpload(event)" />
+        <input type="file" id="hiddenFileInput" accept="image/*" onchange="onFileUpload(event)" style="display:none" />
       </div>
     </section>
 
-    <!-- RESULT SECTION -->
-    <section class="result-section" id="resultSection">
-
-      <!-- Preview -->
-      <div class="preview-card">
-        <img id="previewImg" class="preview-img" alt="Plant specimen" />
-        <div class="ai-overlay" id="aiOverlay">
-          <div class="spinner"></div>
-          <div class="ai-status-text" id="aiStatusText">Leafy AI Analyzing…</div>
-          <div class="ai-steps" id="aiSteps">Scanning leaf morphology</div>
+    <!-- RESULT & REPORT SECTION -->
+    <section class="result-section" id="diagnosisResultSection">
+      
+      <!-- Preview Frame -->
+      <div class="preview-card-wrap">
+        <img id="analyzedSpecimenImg" class="preview-img" alt="Plant specimen" />
+        <div class="ai-scanning-overlay" id="aiScanningOverlay">
+          <div class="apple-spinner"></div>
+          <div class="ai-status-text" id="aiScanningStatus">Analyzing Specimen with Grok…</div>
+          <div class="ai-status-sub" id="aiScanningStep">Scanning cellular venation patterns</div>
         </div>
       </div>
 
-      <!-- Confidence Bar (hidden until result) -->
-      <div class="confidence-row" id="confRow" style="display:none">
-        <span class="conf-label">Match Confidence</span>
-        <div class="conf-bar"><div class="conf-fill" id="confFill" style="width:0%"></div></div>
-        <span class="conf-pct" id="confPct">0%</span>
+      <!-- Match Confidence Bar -->
+      <div class="confidence-strip" id="confidenceStripRow" style="display:none">
+        <span class="conf-label">Diagnostic Confidence</span>
+        <div class="conf-track"><div class="conf-bar" id="confidenceBarFill" style="width:0%"></div></div>
+        <span class="conf-val" id="confidencePercentText">0%</span>
       </div>
 
-      <!-- Plant Details Card -->
-      <div id="plantCard" style="display:none">
+      <!-- Hero Botanical Header -->
+      <div class="plant-hero-card" id="plantHeroCardBlock" style="display:none">
+        <span class="plant-pill-tag" id="plantPillBadge">🌿 Identified</span>
+        <h2 class="plant-common-title" id="plantCommonTitle">—</h2>
+        <div class="plant-sci-title" id="plantScientificTitle"></div>
+        <div class="plant-regional-title" id="plantRegionalTitle"></div>
+        <p class="plant-summary-text" id="plantSummaryContent"></p>
+      </div>
 
-        <!-- Hero Header -->
-        <div class="plant-hero">
-          <div class="plant-badge" id="cardBadge">🌿 Identified</div>
-          <div class="plant-common" id="cardCommon">—</div>
-          <div class="plant-sci" id="cardSci">—</div>
-          <div class="plant-regional" id="cardRegional">—</div>
-          <p class="plant-summary" id="cardSummary"></p>
+      <!-- Vision Feature Pills -->
+      <div class="vision-tags-row" id="visionTagsRow"></div>
+
+      <!-- 6-Card Bento Diagnostic Grid -->
+      <div class="bento-diagnostic-grid" id="diagnosticGridWrap" style="display:none">
+        <div class="bento-card teal">
+          <div class="bento-card-title teal">🦋 Insects, Pollinators & Pests</div>
+          <ul class="bento-list" id="cardInsectsList"></ul>
         </div>
-
-        <!-- Vision Insight Tags -->
-        <div class="vision-insights" id="visionTags"></div>
-
-        <!-- Diagnostic Cards -->
-        <div class="diag-grid">
-          <div class="diag-card teal">
-            <div class="diag-title teal">🦋 Pollinators & Pests</div>
-            <ul class="diag-list" id="cardInsects"></ul>
-          </div>
-          <div class="diag-card amber">
-            <div class="diag-title amber">⚠️ Care Alerts</div>
-            <ul class="diag-list" id="cardAttention"></ul>
-          </div>
-          <div class="diag-card green">
-            <div class="diag-title green">🌱 Benefits & Uses</div>
-            <ul class="diag-list" id="cardBenefits"></ul>
-          </div>
-          <div class="diag-card green">
-            <div class="diag-title green">💧 Sunlight & Water</div>
-            <ul class="diag-list" id="cardNeeds"></ul>
-          </div>
-          <div class="diag-card amber">
-            <div class="diag-title amber">📋 Garden Notes</div>
-            <ul class="diag-list" id="cardWarnings"></ul>
-          </div>
-          <div class="diag-card rose">
-            <div class="diag-title rose">🚨 Safety & Toxicity</div>
-            <ul class="diag-list" id="cardDangers"></ul>
-          </div>
+        <div class="bento-card amber">
+          <div class="bento-card-title amber">⚠️ Critical Care & Attention (Water/Soil)</div>
+          <ul class="bento-list" id="cardAttentionList"></ul>
         </div>
-
-        <!-- Actions -->
-        <div class="action-row">
-          <button class="btn-action-primary" onclick="openCamera()">📷 Scan Again</button>
-          <button class="btn-action-ghost" onclick="closeResult()">✕ Close</button>
+        <div class="bento-card emerald">
+          <div class="bento-card-title emerald">🌱 Ayurvedic & Traditional Uses</div>
+          <ul class="bento-list" id="cardBenefitsList"></ul>
         </div>
+        <div class="bento-card emerald">
+          <div class="bento-card-title emerald">💧 Sunlight, Moisture & Soil Mix</div>
+          <ul class="bento-list" id="cardNeedsList"></ul>
+        </div>
+        <div class="bento-card amber">
+          <div class="bento-card-title amber">📋 Cultivation Notes & Mistakes</div>
+          <ul class="bento-list" id="cardWarningsList"></ul>
+        </div>
+        <div class="bento-card rose">
+          <div class="bento-card-title rose">🚨 Pet Toxicity & Safety Cautions</div>
+          <ul class="bento-list" id="cardDangersList"></ul>
+        </div>
+      </div>
+
+      <!-- Action Row -->
+      <div class="diag-actions" id="diagActionsRow" style="display:none">
+        <button class="btn-diag-rescan" onclick="launchViewfinder()">📷 Scan Another Specimen</button>
+        <button class="btn-diag-close" onclick="dismissResult()">✕ Close Report</button>
       </div>
     </section>
 
-    <!-- PLANT EXPLORER -->
-    <section class="explorer">
-      <div class="section-head">
-        <h3>Plant Knowledge Base</h3>
-        <span id="tileCount">15 species</span>
+    <!-- BOTANICAL EXPLORER -->
+    <section class="explorer-wrap">
+      <div class="explorer-head">
+        <h3>Encyclopedic Plant Library</h3>
+        <span id="libraryCountLabel">15 curated species</span>
       </div>
-      <div class="plants-grid" id="plantGrid"></div>
+      <div class="plants-card-grid" id="plantsDirectoryGrid"></div>
     </section>
 
-    <!-- FOOTER -->
-    <footer class="footer">
-      <p>Leafy is an AI application and powered by <a class="cosmos-link" href="https://sathishyogesh20-del.github.io/MY_PORTFOLIO/" target="_blank" rel="noopener noreferrer">cosmos ai</a></p>
-      <p style="margin-top:4px;font-size:0.75rem;opacity:0.55">Built with 🌱 for Home Gardeners &nbsp;•&nbsp; Works Offline</p>
+    <!-- FOOTER WITH COSMOS AI QUOTE -->
+    <footer class="apple-footer">
+      <p>Leafy is an AI application and powered by <a class="cosmos-ai-highlight" href="https://sathishyogesh20-del.github.io/MY_PORTFOLIO/" target="_blank" rel="noopener noreferrer">cosmos ai</a></p>
+      <p style="margin-top:6px;font-size:0.75rem;opacity:0.6">Apple Intelligence Inspired • Powered by Grok Vision • Works Offline</p>
     </footer>
   </div>
 
-  <!-- ── LIVE CAMERA VIEWFINDER ─────────────────────────── -->
-  <div class="vf-modal" id="vfModal">
-    <div class="vf-video-wrap">
-      <video id="cameraFeed" autoplay playsinline muted></video>
+  <!-- ── APPLE VIEWFINDER MODAL ────────────────────────────────────── -->
+  <div class="apple-viewfinder-modal" id="viewfinderModal">
+    <div class="vf-stream-container">
+      <video id="cameraFeedVideo" autoplay playsinline muted></video>
     </div>
 
-    <!-- Reticle -->
-    <div class="vf-reticle">
-      <div class="vf-corner tl"></div>
-      <div class="vf-corner tr"></div>
-      <div class="vf-corner bl"></div>
-      <div class="vf-corner br"></div>
-      <div class="vf-laser"></div>
-      <div class="vf-hint">ALIGN LEAF OR FLOWER</div>
+    <!-- Apple Intelligence Reticle -->
+    <div class="vf-optic-reticle">
+      <div class="corner-bracket tl"></div>
+      <div class="corner-bracket tr"></div>
+      <div class="corner-bracket bl"></div>
+      <div class="corner-bracket br"></div>
+      <div class="vf-emerald-laser"></div>
+      <div class="vf-tip-caption">ALIGN SPECIMEN IN RETICLE</div>
     </div>
 
-    <!-- Top Bar -->
-    <div class="vf-topbar">
-      <div class="vf-label"><div class="vf-dot"></div> Live Viewfinder</div>
-      <button class="vf-close" onclick="closeCamera()">✕</button>
+    <!-- Viewfinder HUD Top -->
+    <div class="vf-hud-top">
+      <div class="vf-status-indicator"><div class="vf-status-dot"></div> Live Optic Viewfinder</div>
+      <button class="btn-vf-close" onclick="exitViewfinder()">✕</button>
     </div>
 
     <!-- Organ Selector -->
-    <div class="organ-select">
-      <button class="organ-btn active" onclick="setOrgan('leaf',this)">🍃 Leaf</button>
-      <button class="organ-btn" onclick="setOrgan('flower',this)">🌸 Flower</button>
-      <button class="organ-btn" onclick="setOrgan('fruit',this)">🍎 Fruit</button>
-      <button class="organ-btn" onclick="setOrgan('bark',this)">🌳 Bark</button>
+    <div class="vf-organ-dock">
+      <button class="btn-organ-pill active" onclick="selectOrgan('leaf', this)">🍃 Leaf</button>
+      <button class="btn-organ-pill" onclick="selectOrgan('flower', this)">🌸 Flower</button>
+      <button class="btn-organ-pill" onclick="selectOrgan('fruit', this)">🍎 Fruit</button>
+      <button class="btn-organ-pill" onclick="selectOrgan('bark', this)">🌳 Bark</button>
     </div>
 
-    <!-- Bottom Controls -->
-    <div class="vf-bottombar">
-      <button class="vf-tool" onclick="flipCamera()" title="Flip Camera">🔄</button>
-      <div class="vf-shutter-ring" onclick="captureFrame()">
-        <div class="vf-shutter-btn"></div>
+    <!-- Viewfinder HUD Bottom -->
+    <div class="vf-hud-bottom">
+      <button class="btn-vf-round" onclick="toggleFacingCamera()" title="Flip Camera">🔄</button>
+      <div class="apple-shutter-ring" onclick="snapSpecimenFrame()">
+        <div class="apple-shutter-core"></div>
       </div>
-      <button class="vf-tool" onclick="document.getElementById('fileInput').click()" title="Gallery">🖼️</button>
+      <button class="btn-vf-round" onclick="document.getElementById('hiddenFileInput').click()" title="Open Gallery">🖼️</button>
     </div>
   </div>
 
-  <!-- Hidden Canvas -->
-  <canvas id="snapCanvas"></canvas>
+  <!-- ── AI MODEL SETTINGS MODAL ───────────────────────────────────── -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="apple-settings-card">
+      <div class="settings-title">⚙️ AI Model Preferences</div>
+      <div class="settings-desc">Select whether to use xAI Grok Vision or OpenAI GPT-4o Vision for visual recognition.</div>
+      
+      <div class="form-group">
+        <label>AI Provider</label>
+        <select id="settingProvider" onchange="toggleKeyFields()">
+          <option value="grok">xAI Grok Vision (grok-2-vision-1212)</option>
+          <option value="openai">OpenAI Vision (gpt-4o)</option>
+        </select>
+      </div>
 
-  <!-- Toast -->
-  <div class="toast-wrap"><div class="toast" id="toast"></div></div>
+      <div class="form-group" id="grokKeyWrap">
+        <label>Grok API Key</label>
+        <input type="password" id="settingGrokKey" placeholder="xai-..." />
+      </div>
 
-  <!-- Plant Database -->
+      <div class="form-group" id="openaiKeyWrap" style="display:none">
+        <label>OpenAI API Key</label>
+        <input type="password" id="settingOpenAIKey" placeholder="sk-..." />
+      </div>
+
+      <div class="settings-footer">
+        <button class="btn-apple-primary" style="flex:1" onclick="saveSettings()">Save & Activate</button>
+        <button class="btn-apple-glass" style="flex:1" onclick="closeSettingsModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offscreen Canvas for Frame Grab -->
+  <canvas id="offscreenCanvas" style="display:none"></canvas>
+
+  <!-- Toast Notification Capsule -->
+  <div class="toast-capsule" id="toastCapsule"></div>
+
+  <!-- Plant Library Data -->
   <script src="./plants-data.js"></script>
 
   <script>
-    // ── CONFIG ─────────────────────────────────────────────
-    const OPENAI_KEY = "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";
-    let stream = null, facingMode = 'environment', selectedOrgan = 'leaf', currentFilter = 'all';
-    let deferredInstall = null;
+    /* ── CONFIGURATION & STATE ─────────────────────────────────────── */
+    const DEFAULT_OPENAI_KEY = "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";
+    
+    let cameraStream = null;
+    let cameraFacingMode = 'environment';
+    let chosenOrgan = 'leaf';
+    let currentFilterType = 'all';
+    let deferredPWA = null;
 
-    // ── SERVICE WORKER ──────────────────────────────────────
+    // Load persisted settings or defaults
+    let aiProvider = localStorage.getItem('leafy_ai_provider') || 'grok';
+    let grokApiKey = localStorage.getItem('leafy_grok_key') || '';
+    let openaiApiKey = localStorage.getItem('leafy_openai_key') || DEFAULT_OPENAI_KEY;
+
+    function syncModelBadge() {
+      const badge = document.getElementById('activeModelBadge');
+      badge.textContent = aiProvider === 'grok' ? 'Grok Vision' : 'GPT-4o Vision';
+    }
+    syncModelBadge();
+
+    /* ── PWA SERVICE WORKER REGISTRATION ──────────────────────────── */
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('./sw.js').catch(() => {});
     }
 
-    // ── ONLINE STATUS ───────────────────────────────────────
-    function updateConn() {
-      const el = document.getElementById('connStatus');
-      if (navigator.onLine) { el.textContent = 'Online'; el.className = 'pill-status'; }
-      else { el.textContent = 'Offline'; el.className = 'pill-status offline'; }
+    /* ── ONLINE / OFFLINE DETECTOR ────────────────────────────────── */
+    function refreshConnectionState() {
+      const badge = document.getElementById('connectionBadge');
+      if (navigator.onLine) {
+        badge.textContent = 'Online'; badge.className = 'btn-glass-pill online';
+      } else {
+        badge.textContent = 'Offline (PWA)'; badge.className = 'btn-glass-pill';
+      }
     }
-    window.addEventListener('online', updateConn);
-    window.addEventListener('offline', updateConn);
-    updateConn();
+    window.addEventListener('online', refreshConnectionState);
+    window.addEventListener('offline', refreshConnectionState);
+    refreshConnectionState();
 
-    // ── INSTALL PROMPT ──────────────────────────────────────
-    window.addEventListener('beforeinstallprompt', e => {
-      e.preventDefault(); deferredInstall = e;
-      const btn = document.getElementById('installBtn');
-      btn.style.display = 'block';
+    /* ── PWA BEFORE INSTALL PROMPT ────────────────────────────────── */
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault(); deferredPWA = e;
+      const btn = document.getElementById('pwaInstallBtn');
+      btn.style.display = 'inline-flex';
       btn.onclick = async () => {
-        deferredInstall.prompt();
-        await deferredInstall.userChoice;
-        btn.style.display = 'none'; deferredInstall = null;
+        deferredPWA.prompt();
+        await deferredPWA.userChoice;
+        btn.style.display = 'none'; deferredPWA = null;
       };
     });
 
-    // ── TOAST ───────────────────────────────────────────────
-    function toast(msg, duration = 3000) {
-      const t = document.getElementById('toast');
-      t.textContent = msg; t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), duration);
-    }
-
-    // ── PLANT GRID RENDER ───────────────────────────────────
-    const ICON_MAP = {
-      'money-plant':'🪴','tulsi':'🌿','jasmine':'🌸','henna':'🍃','oma-valli':'🌱',
-      'rose':'🌹','bitter-gourd':'🥒','tomato':'🍅','betel-leaf':'🍃',
-      'curry-leaf':'🥘','neem':'🌳','aloe-vera':'🌵','hibiscus':'🌺',
-      'snake-plant':'🪴','monstera':'🌿'
-    };
-
-    function renderGrid(plants) {
-      const grid = document.getElementById('plantGrid');
-      document.getElementById('tileCount').textContent = `${plants.length} species`;
-      grid.innerHTML = '';
-      plants.forEach(p => {
-        const tile = document.createElement('div');
-        tile.className = 'plant-tile';
-        tile.onclick = () => quickShow(p);
-        tile.innerHTML = `
-          <div class="tile-icon">${ICON_MAP[p.id]||'🌱'}</div>
-          <div class="tile-name">${p.common}</div>
-          <div class="tile-sci">${p.scientific}</div>
-          <div class="tile-chip">${p.type}</div>`;
-        grid.appendChild(tile);
-      });
-    }
-
-    function filterBy(type) {
-      currentFilter = type;
-      document.querySelectorAll('.chip').forEach(c => c.classList.toggle('active', c.dataset.type === type));
-      const db = window.PLANT_DATABASE || [];
-      renderGrid(type === 'all' ? db : db.filter(p => p.type === type));
-    }
-
-    function handleSearch(q) {
-      q = q.trim().toLowerCase();
-      const db = window.PLANT_DATABASE || [];
-      renderGrid(!q ? db : db.filter(p =>
-        p.common.toLowerCase().includes(q) ||
-        p.regional.toLowerCase().includes(q) ||
-        p.scientific.toLowerCase().includes(q)
-      ));
-    }
-
-    // ── CAMERA ─────────────────────────────────────────────
-    async function openCamera() {
-      const modal = document.getElementById('vfModal');
+    /* ── CAMERA VIEWFINDER ─────────────────────────────────────────── */
+    async function launchViewfinder() {
+      const modal = document.getElementById('viewfinderModal');
       modal.classList.add('open');
-      await startStream();
+      await initCameraStream();
     }
 
-    async function startStream() {
-      if (stream) stream.getTracks().forEach(t => t.stop());
+    async function initCameraStream() {
+      if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
       try {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: facingMode }, width: { ideal: 1920 }, height: { ideal: 1080 } },
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: cameraFacingMode },
+            width: { ideal: 1920 },
+            height: { ideal: 1080 }
+          },
           audio: false
         });
-        document.getElementById('cameraFeed').srcObject = stream;
-      } catch {
-        closeCamera();
-        toast('Camera access denied — using upload mode');
-        document.getElementById('fileInput').click();
+        document.getElementById('cameraFeedVideo').srcObject = cameraStream;
+      } catch (err) {
+        exitViewfinder();
+        triggerToast('📷 Camera unavailable — opening gallery');
+        document.getElementById('hiddenFileInput').click();
       }
     }
 
-    function closeCamera() {
-      document.getElementById('vfModal').classList.remove('open');
-      if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+    function exitViewfinder() {
+      document.getElementById('viewfinderModal').classList.remove('open');
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
     }
 
-    function flipCamera() {
-      facingMode = facingMode === 'environment' ? 'user' : 'environment';
-      startStream();
+    function toggleFacingCamera() {
+      cameraFacingMode = cameraFacingMode === 'environment' ? 'user' : 'environment';
+      initCameraStream();
     }
 
-    function setOrgan(organ, el) {
-      selectedOrgan = organ;
-      document.querySelectorAll('.organ-btn').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
+    function selectOrgan(organ, btnEl) {
+      chosenOrgan = organ;
+      document.querySelectorAll('.btn-organ-pill').forEach(b => b.classList.remove('active'));
+      btnEl.classList.add('active');
     }
 
-    function captureFrame() {
-      const video = document.getElementById('cameraFeed');
-      const canvas = document.getElementById('snapCanvas');
+    function snapSpecimenFrame() {
+      const video = document.getElementById('cameraFeedVideo');
+      const canvas = document.getElementById('offscreenCanvas');
       if (!video.videoWidth) return;
+
       canvas.width = video.videoWidth; canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
       const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
-      closeCamera();
-      analyzeImage(dataUrl);
+      exitViewfinder();
+      runVisionAnalysis(dataUrl);
     }
 
-    function handleUpload(e) {
-      const file = e.target.files[0];
+    function onFileUpload(event) {
+      const file = event.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = ev => analyzeImage(ev.target.result);
+      reader.onload = e => runVisionAnalysis(e.target.result);
       reader.readAsDataURL(file);
     }
 
-    // ── AI ANALYSIS ─────────────────────────────────────────
-    const AI_STEPS = [
-      'Scanning leaf morphology…',
-      'Detecting venation patterns…',
-      'Matching botanical database…',
-      'Analyzing color spectra…',
-      'Checking pest markers…',
-      'Generating health report…'
+    /* ── AI MULTI-MODEL VISION ENGINE (GROK & OPENAI) ──────────────── */
+    const SCAN_STEPS = [
+      'Extracting morphological features…',
+      'Scanning venation & margin serration…',
+      'Cross-referencing plant.md taxonomy…',
+      'Analyzing pollinator & pest markers…',
+      'Assessing soil, watering & light stress…',
+      'Formulating Ayurvedic diagnostic card…'
     ];
 
-    async function analyzeImage(imageData) {
-      // Show result area with loading state
-      const rs = document.getElementById('resultSection');
+    async function runVisionAnalysis(imageDataUrl) {
+      const rs = document.getElementById('diagnosisResultSection');
       rs.classList.add('active');
-      document.getElementById('previewImg').src = imageData;
-      document.getElementById('aiOverlay').style.display = 'flex';
-      document.getElementById('plantCard').style.display = 'none';
-      document.getElementById('confRow').style.display = 'none';
+      document.getElementById('analyzedSpecimenImg').src = imageDataUrl;
+      document.getElementById('aiScanningOverlay').style.display = 'flex';
+      document.getElementById('confidenceStripRow').style.display = 'none';
+      document.getElementById('plantHeroCardBlock').style.display = 'none';
+      document.getElementById('diagnosticGridWrap').style.display = 'none';
+      document.getElementById('diagActionsRow').style.display = 'none';
+      document.getElementById('visionTagsRow').innerHTML = '';
+
       rs.scrollIntoView({ behavior: 'smooth' });
 
-      // Animate loading steps
-      let step = 0;
-      const stepInterval = setInterval(() => {
-        document.getElementById('aiSteps').textContent = AI_STEPS[step % AI_STEPS.length];
-        step++;
-      }, 900);
+      // Animate progress steps
+      let stepIndex = 0;
+      const stepTimer = setInterval(() => {
+        document.getElementById('aiScanningStep').textContent = SCAN_STEPS[stepIndex % SCAN_STEPS.length];
+        stepIndex++;
+      }, 950);
 
       try {
-        const prompt = buildPrompt();
-        const res = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_KEY}` },
-          body: JSON.stringify({
-            model: 'gpt-4o',
-            messages: [{
+        const prompt = generateDiagnosticPrompt();
+        let plantResult = null;
+
+        // Try Vercel Serverless Proxy first if available
+        try {
+          const proxyRes = await fetch('/api/analyze', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              image: imageDataUrl,
+              prompt: prompt,
+              provider: aiProvider,
+              apiKey: aiProvider === 'grok' ? grokApiKey : openaiApiKey,
+              model: aiProvider === 'grok' ? 'grok-2-vision-1212' : 'gpt-4o'
+            })
+          });
+
+          if (proxyRes.ok) {
+            const proxyData = await proxyRes.json();
+            plantResult = parseJsonClean(proxyData.result);
+          }
+        } catch {
+          // If proxy not hosted, fallback to direct client call
+        }
+
+        // Direct Client API Call if Proxy not returned
+        if (!plantResult) {
+          plantResult = await executeDirectVisionCall(imageDataUrl, prompt);
+        }
+
+        clearInterval(stepTimer);
+        document.getElementById('aiScanningOverlay').style.display = 'none';
+        renderPlantReport(plantResult);
+
+      } catch (err) {
+        clearInterval(stepTimer);
+        document.getElementById('aiScanningOverlay').style.display = 'none';
+        triggerToast(`⚠️ ${err.message || 'Vision analysis failed'}`);
+        console.error('[Leafy Vision Failure]', err);
+      }
+    }
+
+    async function executeDirectVisionCall(imageData, prompt) {
+      let endpoint, key, targetModel;
+
+      if (aiProvider === 'grok') {
+        if (!grokApiKey) {
+          openSettingsModal();
+          throw new Error('Please enter your Grok API key in Settings.');
+        }
+        endpoint = 'https://api.x.ai/v1/chat/completions';
+        key = grokApiKey;
+        targetModel = 'grok-2-vision-1212';
+      } else {
+        endpoint = 'https://api.openai.com/v1/chat/completions';
+        key = openaiApiKey;
+        targetModel = 'gpt-4o';
+      }
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${key}`
+        },
+        body: JSON.stringify({
+          model: targetModel,
+          messages: [
+            {
               role: 'user',
               content: [
                 { type: 'text', text: prompt },
                 { type: 'image_url', image_url: { url: imageData, detail: 'high' } }
               ]
-            }],
-            max_tokens: 1400,
-            temperature: 0.15
-          })
-        });
+            }
+          ],
+          max_tokens: 1400,
+          temperature: 0.15
+        })
+      });
 
-        clearInterval(stepInterval);
-
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(err?.error?.message || `HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        let raw = data.choices[0].message.content.trim();
-        raw = raw.replace(/^```json\s*/,'').replace(/\s*```$/,'').replace(/^```\s*/,'');
-        const plant = JSON.parse(raw);
-        document.getElementById('aiOverlay').style.display = 'none';
-        showResult(plant);
-
-      } catch (err) {
-        clearInterval(stepInterval);
-        document.getElementById('aiOverlay').style.display = 'none';
-        toast(`⚠️ ${err.message || 'Analysis failed — please retry'}`, 5000);
-        closeResult();
-        console.error('[Leafy AI]', err);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson?.error?.message || `HTTP ${res.status}`);
       }
+
+      const data = await res.json();
+      return parseJsonClean(data.choices[0].message.content);
     }
 
-    function buildPrompt() {
+    function parseJsonClean(raw) {
+      let str = raw.trim();
+      str = str.replace(/^```json\s*/, '').replace(/\s*```$/, '').replace(/^```\s*/, '');
+      return JSON.parse(str);
+    }
+
+    function generateDiagnosticPrompt() {
       return `You are Leafy — an expert botanist, Ayurvedic herbalist, and home garden doctor trained on the plant.md botanical manual.
 
-TASK: Visually analyze this plant photograph with maximum accuracy. The organ type selected by user is: "${selectedOrgan}".
+TASK: Visually analyze this plant specimen photograph with maximum accuracy. The organ type selected by user is: "${chosenOrgan}".
 
-Apply deep vision analysis across:
-• Leaf shape, margin type (serrated/lobed/entire), venation (pinnate/palmate), texture, color
-• Stem color, thickness, surface (smooth/hairy/waxy)
-• Flower structure, petal count and arrangement, color pattern
-• Fruit shape, size, and surface if visible
+Examine:
+• Leaf shape, margin serrations, venation (pinnate/palmate), texture, color
+• Stem thickness, surface, color
+• Flower arrangement, petal count, color pattern
+• Fruit morphology if visible
 • Overall growth habit (climber, rosette, shrub, tree, succulent)
-• Visual health signals: yellowing, spots, wilting, pests visible
+• Visual health indicators: yellowing, spots, insect damage, dehydration
 
-OUTPUT FORMAT: Return only valid JSON (no markdown fences, no explanations):
+OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
 {
   "common": "Primary common name (include local Indian names if applicable)",
   "scientific": "Genus species",
-  "regional": "Regional or vernacular names (e.g. Tulsi, Mogra, Thakkali, Vetrillai)",
+  "regional": "Regional or vernacular names (e.g. Tulsi, Mogra, Thakkali, Vetrillai, Karpooravalli)",
   "badge": "Single emoji + brief classification tag",
-  "confidence": 87,
-  "summary": "3 vivid sentences: what it is, its cultural/home garden significance, notable visual traits seen in this specific photo.",
-  "vision_tags": ["trait observed 1","trait observed 2","trait observed 3","trait observed 4"],
+  "confidence": 92,
+  "summary": "3 vivid sentences describing what this plant is, its cultural significance, and notable visual traits seen in this photo.",
+  "vision_tags": ["trait observed 1", "trait observed 2", "trait observed 3", "trait observed 4"],
   "insects": [
     "Beneficial pollinators it attracts (bees, butterflies, sunbirds, moths)",
     "Pest insects likely to target this species (aphids, mealybugs, fruit flies, spider mites)",
     "Companion planting notes or natural deterrent qualities"
   ],
   "attention": [
-    "Watering alert: overwatering vs underwatering visual symptoms visible or likely",
+    "Watering diagnostic: overwatering vs underwatering visual symptoms visible or likely",
     "Soil & repotting needs: compaction, aeration, drainage requirement",
     "Sunlight calibration: observe any scorch marks, leggy growth, or shade stress in photo"
   ],
@@ -976,75 +1228,177 @@ OUTPUT FORMAT: Return only valid JSON (no markdown fences, no explanations):
 }`;
     }
 
-    // ── SHOW RESULT ─────────────────────────────────────────
-    function showResult(p) {
-      // Hero
-      document.getElementById('cardBadge').textContent    = p.badge || '🌿 Identified';
-      document.getElementById('cardCommon').textContent   = p.common || '—';
-      document.getElementById('cardSci').textContent      = p.scientific || '';
-      document.getElementById('cardRegional').textContent = p.regional || '';
-      document.getElementById('cardSummary').textContent  = p.summary || '';
+    /* ── REPORT RENDERING ─────────────────────────────────────────── */
+    function renderPlantReport(p) {
+      // Hero Card
+      document.getElementById('plantPillBadge').textContent = p.badge || '🌿 Verified Diagnosis';
+      document.getElementById('plantCommonTitle').textContent = p.common || '—';
+      document.getElementById('plantScientificTitle').textContent = p.scientific || '';
+      document.getElementById('plantRegionalTitle').textContent = p.regional || '';
+      document.getElementById('plantSummaryContent').textContent = p.summary || '';
+      document.getElementById('plantHeroCardBlock').style.display = 'block';
 
-      // Confidence
-      const conf = Math.max(0, Math.min(100, parseInt(p.confidence) || 80));
-      const row = document.getElementById('confRow');
-      row.style.display = 'flex';
-      document.getElementById('confPct').textContent = `${conf}%`;
-      setTimeout(() => document.getElementById('confFill').style.width = `${conf}%`, 50);
+      // Confidence Bar
+      const conf = Math.max(0, Math.min(100, parseInt(p.confidence) || 85));
+      document.getElementById('confidenceStripRow').style.display = 'flex';
+      document.getElementById('confidencePercentText').textContent = `${conf}%`;
+      setTimeout(() => document.getElementById('confidenceBarFill').style.width = `${conf}%`, 60);
 
-      // Vision tags
-      const tagWrap = document.getElementById('visionTags');
-      tagWrap.innerHTML = '';
+      // Vision Traits Pills
+      const tagsWrap = document.getElementById('visionTagsRow');
+      tagsWrap.innerHTML = '';
       (p.vision_tags || []).forEach(t => {
         const span = document.createElement('span');
-        span.className = 'insight-tag'; span.textContent = t;
-        tagWrap.appendChild(span);
+        span.className = 'vision-tag-pill'; span.textContent = t;
+        tagsWrap.appendChild(span);
       });
 
-      // Lists
-      fill('cardInsects',   p.insects   || []);
-      fill('cardAttention', p.attention || []);
-      fill('cardBenefits',  p.benefits  || []);
-      fill('cardNeeds',     p.needs     || []);
-      fill('cardWarnings',  p.warnings  || []);
-      fill('cardDangers',   p.dangers   || []);
+      // Bento Cards
+      injectList('cardInsectsList', p.insects || []);
+      injectList('cardAttentionList', p.attention || []);
+      injectList('cardBenefitsList', p.benefits || []);
+      injectList('cardNeedsList', p.needs || []);
+      injectList('cardWarningsList', p.warnings || []);
+      injectList('cardDangersList', p.dangers || []);
 
-      document.getElementById('plantCard').style.display = 'block';
-      toast(`✅ Identified: ${p.common}`);
+      document.getElementById('diagnosticGridWrap').style.display = 'grid';
+      document.getElementById('diagActionsRow').style.display = 'flex';
+
+      triggerToast(`✅ Identified: ${p.common}`);
     }
 
-    function fill(id, items) {
-      const ul = document.getElementById(id);
-      ul.innerHTML = items.map(i => `<li>${i}</li>`).join('');
+    function injectList(id, items) {
+      const el = document.getElementById(id);
+      el.innerHTML = items.map(item => `<li>${item}</li>`).join('');
     }
 
-    function closeResult() {
-      document.getElementById('resultSection').classList.remove('active');
-      document.getElementById('fileInput').value = '';
+    function dismissResult() {
+      document.getElementById('diagnosisResultSection').classList.remove('active');
+      document.getElementById('hiddenFileInput').value = '';
     }
 
-    function quickShow(p) {
-      const rs = document.getElementById('resultSection');
+    /* ── PLANT EXPLORER DIRECTORY ──────────────────────────────────── */
+    const PLANT_ICONS = {
+      'money-plant': '🪴', 'tulsi': '🌿', 'jasmine': '🌸', 'henna': '🍃',
+      'oma-valli': '🌱', 'rose': '🌹', 'bitter-gourd': '🥒', 'tomato': '🍅',
+      'betel-leaf': '🍃', 'curry-leaf': '🥘', 'neem': '🌳', 'aloe-vera': '🌵',
+      'hibiscus': '🌺', 'snake-plant': '🪴', 'monstera': '🌿'
+    };
+
+    function renderLibrary(plants) {
+      const grid = document.getElementById('plantsDirectoryGrid');
+      const countEl = document.getElementById('libraryCountLabel');
+      grid.innerHTML = '';
+      countEl.textContent = `${plants.length} species`;
+
+      plants.forEach(plant => {
+        const card = document.createElement('div');
+        card.className = 'plant-tile-card';
+        card.onclick = () => previewLibraryPlant(plant);
+        card.innerHTML = `
+          <div class="tile-emoji">${PLANT_ICONS[plant.id] || '🌱'}</div>
+          <div class="tile-heading">${plant.common}</div>
+          <div class="tile-latin">${plant.scientific}</div>
+          <div class="tile-tag-badge">${plant.type}</div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function previewLibraryPlant(p) {
+      const rs = document.getElementById('diagnosisResultSection');
       rs.classList.add('active');
-      document.getElementById('previewImg').src = '';
-      document.getElementById('previewImg').style.display = 'none';
-      document.getElementById('aiOverlay').style.display = 'none';
-      document.getElementById('confRow').style.display = 'none';
-      document.getElementById('visionTags').innerHTML = '';
-      document.getElementById('confFill').style.width = '0%';
-      showResult({
+      document.getElementById('analyzedSpecimenImg').style.display = 'none';
+      document.getElementById('aiScanningOverlay').style.display = 'none';
+      document.getElementById('confidenceStripRow').style.display = 'none';
+
+      renderPlantReport({
         ...p,
-        badge: p.badge || '🌿 From Library',
+        badge: p.badge || '🌿 Curated Specimen',
         confidence: 100,
-        vision_tags: [],
-        attention: p.warnings || [],
+        vision_tags: ['Curated Database Profile'],
+        attention: p.warnings || []
       });
+
       rs.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // ── INIT ────────────────────────────────────────────────
+    function applyCategoryFilter(cat) {
+      currentFilterType = cat;
+      document.querySelectorAll('.pill-filter').forEach(p => {
+        p.classList.toggle('active', p.dataset.type === cat);
+      });
+
+      if (!window.PLANT_DATABASE) return;
+      if (cat === 'all') {
+        renderLibrary(window.PLANT_DATABASE);
+      } else {
+        const filtered = window.PLANT_DATABASE.filter(p => p.type === cat);
+        renderLibrary(filtered);
+      }
+    }
+
+    function filterPlantSearch(query) {
+      const q = query.trim().toLowerCase();
+      if (!window.PLANT_DATABASE) return;
+      if (!q) {
+        applyCategoryFilter(currentFilterType);
+        return;
+      }
+      const results = window.PLANT_DATABASE.filter(p =>
+        p.common.toLowerCase().includes(q) ||
+        p.regional.toLowerCase().includes(q) ||
+        p.scientific.toLowerCase().includes(q)
+      );
+      renderLibrary(results);
+    }
+
+    /* ── SETTINGS MODAL ────────────────────────────────────────────── */
+    function openSettingsModal() {
+      document.getElementById('settingProvider').value = aiProvider;
+      document.getElementById('settingGrokKey').value = grokApiKey;
+      document.getElementById('settingOpenAIKey').value = openaiApiKey;
+      toggleKeyFields();
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
+    function toggleKeyFields() {
+      const p = document.getElementById('settingProvider').value;
+      document.getElementById('grokKeyWrap').style.display = p === 'grok' ? 'block' : 'none';
+      document.getElementById('openaiKeyWrap').style.display = p === 'openai' ? 'block' : 'none';
+    }
+
+    function saveSettings() {
+      aiProvider = document.getElementById('settingProvider').value;
+      grokApiKey = document.getElementById('settingGrokKey').value.trim();
+      openaiApiKey = document.getElementById('settingOpenAIKey').value.trim() || DEFAULT_OPENAI_KEY;
+
+      localStorage.setItem('leafy_ai_provider', aiProvider);
+      localStorage.setItem('leafy_grok_key', grokApiKey);
+      localStorage.setItem('leafy_openai_key', openaiApiKey);
+
+      syncModelBadge();
+      closeSettingsModal();
+      triggerToast(`Active Model: ${aiProvider === 'grok' ? 'Grok Vision' : 'GPT-4o Vision'}`);
+    }
+
+    /* ── TOAST NOTIFICATIONS ───────────────────────────────────────── */
+    let toastTimeout = null;
+    function triggerToast(msg) {
+      const t = document.getElementById('toastCapsule');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => t.classList.remove('show'), 3800);
+    }
+
+    /* ── INITIALIZATION ────────────────────────────────────────────── */
     window.addEventListener('DOMContentLoaded', () => {
-      if (window.PLANT_DATABASE) renderGrid(window.PLANT_DATABASE);
+      if (window.PLANT_DATABASE) renderLibrary(window.PLANT_DATABASE);
     });
   </script>
 </body>
