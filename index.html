@@ -63,13 +63,22 @@
       user-select: none;
     }
 
-    html, body {
+    html {
+      min-height: 100%;
+      background: var(--bg-deep);
+      scroll-behavior: smooth;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
       min-height: 100%;
       background: var(--bg-deep);
       color: var(--text-100);
       font-family: -apple-system, BlinkMacSystemFont, 'Plus Jakarta Sans', system-ui, sans-serif;
       overflow-x: hidden;
-      overscroll-behavior-y: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: auto;
+      touch-action: pan-y pinch-zoom;
     }
 
     /* ── DYNAMIC 3D ATMOSPHERIC MESH ─────────────────────────────────── */
@@ -249,12 +258,15 @@
     }
     .lang-pill-selector {
       display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
     }
     .lang-pill-selector::-webkit-scrollbar { display: none; }
     .lang-btn {
       padding: 5px 11px; border-radius: 14px; border: 1px solid var(--glass-border);
       background: rgba(255, 255, 255, 0.04); color: var(--text-muted);
       font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+      flex-shrink: 0;
     }
     .lang-btn:hover { color: var(--text-100); background: rgba(255, 255, 255, 0.1); }
     .lang-btn.active {
@@ -289,6 +301,8 @@
     .filter-track {
       display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 22px;
       scrollbar-width: none; -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-x: contain;
     }
     .filter-track::-webkit-scrollbar { display: none; }
     .pill-filter {
@@ -1589,23 +1603,45 @@
     function generateDiagnosticPrompt() {
       const langName = I18N[currentLang] ? I18N[currentLang].name : "English";
 
-      return `You are Leafy — an expert botanist, Ayurvedic herbalist, and home garden doctor trained on the plant.md botanical manual.
+      return `You are Leafy — an expert botanist, Ayurvedic/Siddha herbalist, and master doctor of Indian and South Indian home gardens (including terrace gardens, balcony pots, and backyard flora), trained on the plant.md botanical manual.
+
+KNOWLEDGE BASE & EXPERTISE:
+You possess encyclopedic expertise in everyday Indian and South Indian garden plants, including:
+- Tulsi (Ocimum tenuiflorum / Krishna & Rama Tulsi)
+- Kariveppilai / Kadi Patta (Murraya koenigii)
+- Karpooravalli / Oma Valli / Doddapatre / Panikoorka (Coleus amboinicus)
+- Vetrilai / Paan / Tamalapaku (Piper betle)
+- Sembaruthi / Hibiscus / Gudhal (Hibiscus rosa-sinensis)
+- Gundu Malli / Mogra / Jasmine (Jasminum sambac)
+- Maruthani / Mehndi / Gorintaku (Lawsonia inermis)
+- Mudakathan Keerai (Cardiospermum halicacabum)
+- Vallarai / Gotu Kola / Brahmi (Centella asiatica)
+- Manathakkali (Solanum nigrum)
+- Pirandai / Hadjod (Cissus quadrangularis)
+- Nithya Kalyani / Sadabahar (Catharanthus roseus)
+- Nilavembu / Siriyanangai / Kalmegh (Andrographis paniculata)
+- Pudina (Mentha spicata), Kothamalli / Coriander (Coriandrum sativum), Vendakkai / Okra, Kathirikai / Brinjal, Thakkali / Tomato, Moringa / Murungai (Moringa oleifera), Neem / Veppilai (Azadirachta indica), Aloe Vera / Kattralai (Aloe barbadensis), and tropical houseplants like Money Plant (Epipremnum aureum), Snake Plant, and Syngonium.
 
 TASK: Visually analyze this plant specimen photograph with maximum accuracy. The organ type selected by user is: "${chosenOrgan}".
 
 CRITICAL INSTRUCTION - TARGET LANGUAGE:
 The user has chosen their language as: ${langName} (${currentLang}).
-You MUST translate and transcribe ALL values (common name, summary, insects list, attention list, benefits, needs, warnings, dangers) into ${langName}!
+You MUST translate and transcribe ALL values (common name, regional names, summary, insects list, attention list, benefits, needs, warnings, dangers) into ${langName}!
 Only the "scientific" field should remain Latin (e.g. Ocimum tenuiflorum).
+
+ECOLOGICAL & CARE REQUIREMENTS:
+1. Insects: Specifically detail both beneficial pollinators (e.g. honeybees, hoverflies, Common Mormon butterflies) and Indian garden pests (mealybugs, spider mites, aphids, whiteflies, leafminers).
+2. Attention (Water & Soil): Give pinpoint diagnostics for Indian tropical/subtropical climates (red soil, cocopeat ratio, vermicompost, buttermilk/neem oil remedies, overwatering root rot vs underwatering).
+3. Benefits: Include traditional Ayurvedic, Siddha, culinary (rasam, thuvaiyal, tea), and home remedy usages in ${langName}.
 
 OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
 {
   "common": "Primary common name in ${langName}",
   "scientific": "Latin Genus species",
-  "regional": "Regional or vernacular names in ${langName}",
+  "regional": "Regional or vernacular names in ${langName} (e.g. Tamil/Hindi/Telugu names)",
   "badge": "Single emoji + brief tag in ${langName}",
-  "confidence": 92,
-  "summary": "3 vivid sentences in ${langName} describing what this plant is, its cultural significance, and notable visual traits seen in this photo.",
+  "confidence": 94,
+  "summary": "3 vivid sentences in ${langName} describing what this plant is, its cultural significance in Indian households, and notable visual traits seen in this photo.",
   "vision_tags": ["trait in ${langName} 1", "trait in ${langName} 2", "trait in ${langName} 3"],
   "insects": [
     "Beneficial pollinators it attracts written in ${langName}",
@@ -1614,11 +1650,11 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
   ],
   "attention": [
     "Watering diagnostic: overwatering vs underwatering written in ${langName}",
-    "Soil & repotting needs written in ${langName}",
-    "Sunlight calibration written in ${langName}"
+    "Soil & repotting needs (cocopeat, red soil, pot size) written in ${langName}",
+    "Sunlight calibration for Indian climates written in ${langName}"
   ],
   "benefits": [
-    "Primary Ayurvedic or medicinal use written in ${langName}",
+    "Primary Ayurvedic/Siddha or medicinal use written in ${langName}",
     "Culinary or daily household use written in ${langName}",
     "Air purifying or ecological benefit written in ${langName}"
   ],
@@ -1626,11 +1662,11 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
     "Sunlight: hours and intensity written in ${langName}",
     "Water: frequency and method written in ${langName}",
     "Soil: ideal mix and pot size written in ${langName}",
-    "Fertilizer: organic booster recommendation written in ${langName}"
+    "Fertilizer: organic booster recommendation (vermicompost, neem cake, Jeevamrutham) written in ${langName}"
   ],
   "warnings": [
     "Critical cultivation mistake to avoid written in ${langName}",
-    "Disease or pest prevention tip written in ${langName}"
+    "Disease or pest prevention tip (e.g. neem oil spray) written in ${langName}"
   ],
   "dangers": [
     "Pet/child toxicity or safety alert written in ${langName}"

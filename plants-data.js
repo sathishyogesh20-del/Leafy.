@@ -456,6 +456,112 @@ const PLANT_DATABASE = [
     dangers: [
       "⚠️ Toxic to pets and humans if chewed; contains calcium oxalate crystals causing mouth pain."
     ]
+  },
+  {
+    id: "vetrilai",
+    common: "Betel Leaf (Vetrilai / Paan)",
+    regional: "Vetrilai (Tamil), Paan (Hindi), Tamalapaku (Telugu), Vethila (Malayalam), Veelyada Ele (Kannada)",
+    scientific: "Piper betle",
+    type: "herb",
+    badge: "🌿 Sacred South Indian Climber",
+    summary: "Traditional heart-shaped auspicious vine held in high esteem across South Indian culture and Ayurvedic digestion therapies.",
+    benefits: [
+      "Ayurvedic digestif: Chewed with areca nut and spices post-meal to stimulate saliva and digestive enzymes.",
+      "Antibacterial & antifungal: Crushed leaf juice applied to cuts, fungal patches, and minor boils.",
+      "Symbol of auspicious beginnings: Essential in traditional weddings, poojas, and welcome ceremonies."
+    ],
+    needs: [
+      "Light: Filtered, gentle sunlight or semi-shade. Direct harsh noon sun burns leaves quickly.",
+      "Water: Keep soil consistently damp with regular light watering, but avoid waterlogging.",
+      "Support: Provide a coir moss stick, wooden trellis, or balcony railing for aerial rootlets.",
+      "Soil: Rich, organic potting mix (40% red soil, 30% cocopeat, 30% vermicompost)."
+    ],
+    warnings: [
+      "Yellowing wilted leaves: Root rot caused by poor pot drainage; drill extra drainage holes.",
+      "Spider mite attack: Spray underside of leaves with mild neem water during hot dry seasons."
+    ],
+    dangers: [
+      "Safe and edible for humans. Non-toxic to household pets in natural forms."
+    ]
+  },
+  {
+    id: "kariveppilai",
+    common: "Curry Leaf (Kariveppilai / Kadi Patta)",
+    regional: "Kariveppilai (Tamil), Kadi Patta (Hindi), Karivepaku (Telugu), Kariveppila (Malayalam), Karibevu (Kannada)",
+    scientific: "Murraya koenigii",
+    type: "homegarden",
+    badge: "🏡 Kitchen Garden Staple",
+    summary: "The irreplaceable soul of South Indian tempering. An aromatic leafy shrub loaded with iron, antioxidants, and beta-carotene.",
+    benefits: [
+      "Hair & scalp nourishment: Fresh leaves infused in hot virgin coconut oil promote thick, dark hair growth.",
+      "Rich in iron and folic acid: Supports hemoglobin health and blood purification.",
+      "Gastric comfort: Infused in spiced buttermilk (Neer Mor) to alleviate morning nausea and acidity."
+    ],
+    needs: [
+      "Sunlight: Minimum 6 hours of blazing direct sunlight. Essential for rich aromatic oil.",
+      "Water: Water deeply once topsoil feels slightly dry. Never leave standing water in saucers.",
+      "Pruning: Pinch off top tender growth tip to force the plant into a bushy canopy.",
+      "Remedy for yellowing leaves: Pour diluted fermented sour buttermilk around roots every fortnight."
+    ],
+    warnings: [
+      "Pale chlorotic leaves: Iron/magnesium deficiency in alkaline pots; add Epsom salts or buttermilk.",
+      "Caterpillar grazing: Common Mormon butterfly caterpillars love tender leaves; handpick them off."
+    ],
+    dangers: [
+      "100% edible and safe for everyday consumption."
+    ]
+  },
+  {
+    id: "mudakathan",
+    common: "Mudakathan (Balloon Vine)",
+    regional: "Mudakathan Keerai (Tamil), Kanphata (Hindi), Buddakakara (Telugu), Uzhinja (Malayalam), Agniballi (Kannada)",
+    scientific: "Cardiospermum halicacabum",
+    type: "herb",
+    badge: "🌿 Herbal Joint Care Vine",
+    summary: "Fast-growing medicinal creeper with whimsical balloon-like seed pods, celebrated in South India for relieving joint pain and arthritis.",
+    benefits: [
+      "Natural joint mobility remedy: Famous in South Indian Mudakathan Dosai and Rasam for reducing joint inflammation.",
+      "Anti-inflammatory flavonoids: Used in traditional village medicine to ease stiffness and rheumatic aches.",
+      "Fast balcony climber: Covers trellises in vibrant emerald foliage within weeks."
+    ],
+    needs: [
+      "Light: Thrives in bright sunshine to moderate balcony light.",
+      "Water: Regular watering; keep soil slightly moist.",
+      "Support: Needs thin string or wire mesh to latch its delicate curling tendrils."
+    ],
+    warnings: [
+      "Sensitive to prolonged water stagnation.",
+      "Harvest leaves while tender before flower pods mature for maximum taste and medicinal potency."
+    ],
+    dangers: [
+      "Safe for culinary preparation when cooked into batters, chutneys, or broths."
+    ]
+  },
+  {
+    id: "pirandai",
+    common: "Pirandai (Veldt Grape / Hadjod)",
+    regional: "Pirandai (Tamil), Hadjod (Hindi), Nalleru (Telugu), Changalamparanda (Malayalam), Mangaravalli (Kannada)",
+    scientific: "Cissus quadrangularis",
+    type: "succulent",
+    badge: "🌵 Ancient Bone Healer",
+    summary: "A tough four-sided succulent vine with immense bone-strengthening power, heavily praised in Siddha and Ayurvedic medicine.",
+    benefits: [
+      "Accelerates bone fracture healing: Stimulates osteoblasts and enhances bone mineral uptake.",
+      "Appetite & digestion stimulator: Prepared as tangy Pirandai Thuvaiyal to cure loss of appetite.",
+      "Extreme drought resilience: Can survive weeks without water in balcony pots."
+    ],
+    needs: [
+      "Light: Direct hot tropical sun (6+ hours).",
+      "Water: Water very sparingly; let soil dry completely between watering (succulent habit).",
+      "Soil: Gritty, sandy, well-draining soil with 30% coarse sand or perlite."
+    ],
+    warnings: [
+      "Contains microscopic calcium oxalate crystals: **Always smear hands with sesame oil** before harvesting and peeling to avoid skin irritation.",
+      "Tender green tips are best for cooking; discard tough fibrous woody sections."
+    ],
+    dangers: [
+      "Must be sauteed thoroughly with tamarind/oil before eating to neutralize itchy oxalate crystals."
+    ]
   }
 ];
 
