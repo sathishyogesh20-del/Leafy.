@@ -7,21 +7,25 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Leafy" />
-  <meta name="description" content="AI Plant Identifier, Live Viewfinder & Home Garden Doctor — Powered by Grok Vision & Cosmos AI" />
-  <title>Leafy — AI Plant Doctor (Apple Edition)</title>
+  <meta name="description" content="AI Plant Identifier, Live Viewfinder & Home Garden Doctor — Powered by Groq Vision & Cosmos AI" />
+  <title>Leafy — AI Plant Doctor</title>
   
   <!-- PWA Manifest & Apple Touch Icons -->
   <link rel="manifest" href="./manifest.json" />
   <link rel="apple-touch-icon" href="./icon-192.svg" />
   <link rel="icon" type="image/svg+xml" href="./icon-192.svg" />
   
-  <!-- Apple SF Pro Inspired & Display Fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cinzel:wght@700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Telugu:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&family=Noto+Sans+Malayalam:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Firebase App & Auth SDKs (Compat for smooth browser bundle) -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
   <style>
-    /* ── APPLE GLASS & EMERALD DESIGN SYSTEM ───────────────────────── */
+    /* ── DESIGN SYSTEM & COLOR TOKENS ───────────────────────────────── */
     :root {
       --bg-deep: #050d08;
       --bg-canvas: #09170e;
@@ -101,7 +105,7 @@
     /* ── RESPONSIVE SHELL ────────────────────────────────────────────── */
     .app-shell {
       position: relative; z-index: 1;
-      max-width: 520px; margin: 0 auto;
+      width: 100%; max-width: 520px; margin: 0 auto;
       min-height: 100dvh;
       display: flex; flex-direction: column;
       perspective: 1200px;
@@ -146,7 +150,6 @@
       transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
     .brand-squircle:hover { transform: scale(1.08) rotate(4deg); }
-    .brand-squircle img { width: 32px; height: 32px; }
 
     .brand-title {
       font-size: 1.45rem; font-weight: 800; letter-spacing: -0.6px;
@@ -180,9 +183,22 @@
       content: ''; width: 7px; height: 7px; border-radius: 50%;
       background: #10b981; box-shadow: 0 0 8px #10b981;
     }
-    .btn-glass-pill.settings { font-size: 0.95rem; padding: 7px 11px; }
 
-    /* ── HERO BANNER & 3D FLOATING LEAF ──────────────────────────────── */
+    .user-avatar-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 4px 10px 4px 4px; border-radius: 24px;
+      background: rgba(255, 255, 255, 0.08); border: 1px solid var(--glass-border);
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .user-avatar-pill img {
+      width: 28px; height: 28px; border-radius: 50%; object-fit: cover;
+    }
+    .user-avatar-pill span {
+      font-size: 0.75rem; font-weight: 700; color: var(--text-100); max-width: 80px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ── HERO BANNER ─────────────────────────────────────────────────── */
     .hero-container {
       padding: 28px 24px 20px; text-align: center; position: relative;
     }
@@ -221,6 +237,31 @@
       max-width: 440px; margin: 0 auto 22px; font-weight: 400;
     }
 
+    /* ── LANGUAGE QUICK SELECTOR BAR ─────────────────────────────────── */
+    .lang-bar-container {
+      margin: 0 20px 18px; display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 16px; border-radius: var(--apple-radius-md);
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
+      backdrop-filter: blur(16px);
+    }
+    .lang-bar-left {
+      display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700; color: var(--text-200);
+    }
+    .lang-pill-selector {
+      display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none;
+    }
+    .lang-pill-selector::-webkit-scrollbar { display: none; }
+    .lang-btn {
+      padding: 5px 11px; border-radius: 14px; border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.04); color: var(--text-muted);
+      font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    }
+    .lang-btn:hover { color: var(--text-100); background: rgba(255, 255, 255, 0.1); }
+    .lang-btn.active {
+      background: var(--accent-glow); color: #032515; border-color: var(--accent-glow);
+      box-shadow: 0 0 12px rgba(52, 211, 153, 0.4);
+    }
+
     /* ── SEARCH & FILTER STRIP ───────────────────────────────────────── */
     .search-dock {
       margin: 0 20px 18px; position: relative;
@@ -244,7 +285,7 @@
       font-size: 1.15rem; color: var(--text-muted); pointer-events: none;
     }
 
-    /* Filter Pills Horizontal Scroll */
+    /* Filter Pills */
     .filter-track {
       display: flex; gap: 8px; overflow-x: auto; padding: 0 20px 22px;
       scrollbar-width: none; -ms-overflow-style: none;
@@ -270,7 +311,7 @@
       transform: translateY(-1px);
     }
 
-    /* ── 3D SCANNER ACTION STAGE ─────────────────────────────────────── */
+    /* ── SCANNER STAGE ───────────────────────────────────────────────── */
     .scanner-hero-card {
       margin: 0 20px 26px;
       background: linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(6, 182, 212, 0.06) 100%);
@@ -280,12 +321,6 @@
       box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.7);
       backdrop-filter: blur(25px);
     }
-    .scanner-hero-card::before {
-      content: ''; position: absolute; inset: 0;
-      background: radial-gradient(circle at 50% 0%, rgba(52, 211, 153, 0.18), transparent 70%);
-      pointer-events: none;
-    }
-
     .pulse-optic-chamber {
       width: 90px; height: 90px; margin: 0 auto 18px;
       border-radius: 50%;
@@ -343,7 +378,7 @@
       transform: translateY(-1px);
     }
 
-    /* ── RESULT & VISION ANALYSIS SECTION ───────────────────────────── */
+    /* ── RESULT & REPORT SECTION ─────────────────────────────────────── */
     .result-section {
       display: none; padding: 0 20px 26px; animation: slideUpApple 0.45s cubic-bezier(0.16, 1, 0.3, 1);
     }
@@ -577,7 +612,7 @@
     .vf-stream-container { position: absolute; inset: 0; overflow: hidden; }
     #cameraFeedVideo { width: 100%; height: 100%; object-fit: cover; }
 
-    /* Futuristic Apple Intelligence Reticle */
+    /* Reticle */
     .vf-optic-reticle {
       position: absolute; top: 50%; left: 50%; transform: translate(-50%, -55%);
       width: 76%; max-width: 330px; aspect-ratio: 1 / 1.15;
@@ -652,36 +687,78 @@
       transform: scale(0.85); background: var(--accent-glow);
     }
 
-    /* ── SETTINGS MODAL ──────────────────────────────────────────────── */
+    /* ── USER & SETTINGS DRAWER MODAL ────────────────────────────────── */
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 9990;
-      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(20px);
+      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(24px);
       display: none; align-items: center; justify-content: center; padding: 20px;
     }
     .modal-backdrop.open { display: flex; }
     .apple-settings-card {
-      width: 100%; max-width: 460px;
+      width: 100%; max-width: 480px;
       background: rgba(15, 33, 22, 0.95);
       border: 1px solid var(--glass-border-bright);
       border-radius: var(--apple-radius-xl); padding: 28px 24px;
       box-shadow: 0 35px 80px rgba(0, 0, 0, 0.8);
       position: relative;
     }
-    .settings-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 8px; }
-    .settings-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block; font-size: 0.78rem; font-weight: 700; color: var(--text-200);
-      margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.8px;
+    .settings-title { font-size: 1.35rem; font-weight: 800; margin-bottom: 6px; }
+    .settings-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 22px; }
+    
+    .setting-section-box {
+      background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border);
+      border-radius: var(--apple-radius-md); padding: 16px; margin-bottom: 16px;
     }
-    .form-group select, .form-group input {
-      width: 100%; padding: 12px 16px;
-      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
-      border-radius: var(--apple-radius-sm); font-size: 0.9rem; color: #fff;
-      outline: none;
+    .setting-section-box h4 {
+      font-size: 0.85rem; font-weight: 700; color: var(--text-200); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 6px;
     }
-    .form-group select option { background: #0a1a0f; color: #fff; }
-    .settings-footer { display: flex; gap: 10px; margin-top: 24px; }
+
+    /* Auth UI inside settings */
+    .user-profile-header {
+      display: flex; align-items: center; gap: 14px; margin-bottom: 12px;
+    }
+    .user-profile-header img {
+      width: 50px; height: 50px; border-radius: 50%; border: 2px solid var(--accent-glow);
+    }
+    .user-profile-info h5 { font-size: 1rem; font-weight: 700; color: #fff; }
+    .user-profile-info p { font-size: 0.75rem; color: var(--text-muted); }
+
+    .btn-google-auth {
+      width: 100%; padding: 12px 18px; border-radius: var(--apple-radius-sm);
+      background: #ffffff; color: #1f2937; font-weight: 700; font-size: 0.9rem;
+      border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2); transition: all 0.2s;
+    }
+    .btn-google-auth:hover { background: #f3f4f6; transform: translateY(-1px); }
+
+    .btn-logout {
+      width: 100%; padding: 10px 18px; border-radius: var(--apple-radius-sm);
+      background: rgba(244, 63, 94, 0.15); color: #fca5a5; border: 1px solid rgba(244, 63, 94, 0.3);
+      font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
+    }
+    .btn-logout:hover { background: rgba(244, 63, 94, 0.25); color: #fff; }
+
+    .lang-grid-select {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+    }
+    @media (min-width: 440px) {
+      .lang-grid-select { grid-template-columns: repeat(3, 1fr); }
+    }
+    .lang-card-option {
+      padding: 10px; border-radius: 12px; border: 1px solid var(--glass-border);
+      background: rgba(255, 255, 255, 0.03); color: var(--text-200);
+      font-size: 0.82rem; font-weight: 700; cursor: pointer; text-align: center;
+      transition: all 0.2s;
+    }
+    .lang-card-option:hover { background: rgba(255, 255, 255, 0.08); }
+    .lang-card-option.active {
+      background: var(--accent-glow); color: #022c22; border-color: var(--accent-glow);
+      box-shadow: 0 4px 12px rgba(52, 211, 153, 0.4);
+    }
+    .lang-card-option small { display: block; font-size: 0.68rem; opacity: 0.75; font-weight: 500; }
+
+    .settings-footer-row { display: flex; gap: 10px; margin-top: 18px; }
 
     /* ── TOAST NOTIFICATION ─────────────────────────────────────────── */
     .toast-capsule {
@@ -719,9 +796,15 @@
             <line x1="30" y1="96" x2="162" y2="96" stroke="#6ee7b7" stroke-width="3.5" stroke-linecap="round"/>
           </svg>
         </div>
-        <div class="brand-title">Lea<span>fy</span> <span class="brand-version" id="activeModelBadge">Groq Vision LPU</span></div>
+        <div class="brand-title">Lea<span>fy</span> <span class="brand-version" id="activeModelBadge">Groq LPU</span></div>
       </div>
       <div class="topbar-actions">
+        <!-- Auth / Settings Capsule -->
+        <div id="authHeaderContainer">
+          <button class="btn-glass-pill" onclick="openSettingsModal()" id="btnOpenAuthModal">
+            <span>⚙️</span> <span id="authStatusText">Settings</span>
+          </button>
+        </div>
         <span class="btn-glass-pill online" id="connectionBadge">Online</span>
         <button class="btn-glass-pill" id="pwaInstallBtn" style="display:none">📲 Install</button>
       </div>
@@ -729,10 +812,25 @@
 
     <!-- HERO PROJECTION -->
     <section class="hero-container">
-      <div class="hero-badge-tag"><div class="pulse-dot"></div> Powered by Groq Vision & Cosmos AI</div>
-      <h1 class="hero-heading">Instant Plant Doctor<br/><em>Designed for Precision</em></h1>
-      <p class="hero-lead">Scan any garden leaf, medicinal herb, vegetable, or flower. Leafy analyzes pests, pollinators, watering, and care in real-time.</p>
+      <div class="hero-badge-tag"><div class="pulse-dot"></div> <span id="heroBadgeLabel">Powered by Groq Vision & Cosmos AI</span></div>
+      <h1 class="hero-heading" id="heroHeadline">Instant Plant Doctor<br/><em>Designed for Precision</em></h1>
+      <p class="hero-lead" id="heroSubtitle">Scan any garden leaf, medicinal herb, vegetable, or flower. Leafy analyzes pests, pollinators, watering, and care in real-time in your native language.</p>
     </section>
+
+    <!-- LANGUAGE SELECTION STRIP -->
+    <div class="lang-bar-container">
+      <div class="lang-bar-left">
+        <span>🌐</span> <span id="currentLangTitle">Language:</span>
+      </div>
+      <div class="lang-pill-selector">
+        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">English</button>
+        <button class="lang-btn" data-lang="ta" onclick="setLanguage('ta')">தமிழ்</button>
+        <button class="lang-btn" data-lang="hi" onclick="setLanguage('hi')">हिन्दी</button>
+        <button class="lang-btn" data-lang="te" onclick="setLanguage('te')">తెలుగు</button>
+        <button class="lang-btn" data-lang="kn" onclick="setLanguage('kn')">ಕನ್ನಡ</button>
+        <button class="lang-btn" data-lang="ml" onclick="setLanguage('ml')">മലയാളം</button>
+      </div>
+    </div>
 
     <!-- SEARCH DOCK -->
     <div class="search-dock">
@@ -755,14 +853,14 @@
     <!-- 3D SCANNER CARD -->
     <section class="scanner-hero-card">
       <div class="pulse-optic-chamber">📸</div>
-      <h2>AI Vision Viewfinder</h2>
-      <p>Point your device at any specimen or select a gallery photo for deep multi-spectral botanical diagnosis.</p>
+      <h2 id="scannerCardTitle">AI Vision Viewfinder</h2>
+      <p id="scannerCardDesc">Point your device at any specimen or select a gallery photo for deep multi-spectral botanical diagnosis in your selected language.</p>
       <div class="btn-group-scan">
         <button class="btn-apple-primary" onclick="launchViewfinder()">
-          <span>📷</span> Live Camera
+          <span>📷</span> <span id="btnLiveCamLabel">Live Camera</span>
         </button>
         <button class="btn-apple-glass" onclick="document.getElementById('hiddenFileInput').click()">
-          <span>🖼️</span> Upload Photo
+          <span>🖼️</span> <span id="btnUploadLabel">Upload Photo</span>
         </button>
         <input type="file" id="hiddenFileInput" accept="image/*" onchange="onFileUpload(event)" style="display:none" />
       </div>
@@ -776,14 +874,14 @@
         <img id="analyzedSpecimenImg" class="preview-img" alt="Plant specimen" />
         <div class="ai-scanning-overlay" id="aiScanningOverlay">
           <div class="apple-spinner"></div>
-          <div class="ai-status-text" id="aiScanningStatus">Analyzing Specimen with Grok…</div>
+          <div class="ai-status-text" id="aiScanningStatus">Analyzing Specimen with Groq…</div>
           <div class="ai-status-sub" id="aiScanningStep">Scanning cellular venation patterns</div>
         </div>
       </div>
 
       <!-- Match Confidence Bar -->
       <div class="confidence-strip" id="confidenceStripRow" style="display:none">
-        <span class="conf-label">Diagnostic Confidence</span>
+        <span class="conf-label" id="confBarLabel">Diagnostic Confidence</span>
         <div class="conf-track"><div class="conf-bar" id="confidenceBarFill" style="width:0%"></div></div>
         <span class="conf-val" id="confidencePercentText">0%</span>
       </div>
@@ -803,42 +901,42 @@
       <!-- 6-Card Bento Diagnostic Grid -->
       <div class="bento-diagnostic-grid" id="diagnosticGridWrap" style="display:none">
         <div class="bento-card teal">
-          <div class="bento-card-title teal">🦋 Insects, Pollinators & Pests</div>
+          <div class="bento-card-title teal" id="titleInsectsCard">🦋 Insects, Pollinators & Pests</div>
           <ul class="bento-list" id="cardInsectsList"></ul>
         </div>
         <div class="bento-card amber">
-          <div class="bento-card-title amber">⚠️ Critical Care & Attention (Water/Soil)</div>
+          <div class="bento-card-title amber" id="titleAttentionCard">⚠️ Critical Care & Attention (Water/Soil)</div>
           <ul class="bento-list" id="cardAttentionList"></ul>
         </div>
         <div class="bento-card emerald">
-          <div class="bento-card-title emerald">🌱 Ayurvedic & Traditional Uses</div>
+          <div class="bento-card-title emerald" id="titleBenefitsCard">🌱 Ayurvedic & Traditional Uses</div>
           <ul class="bento-list" id="cardBenefitsList"></ul>
         </div>
         <div class="bento-card emerald">
-          <div class="bento-card-title emerald">💧 Sunlight, Moisture & Soil Mix</div>
+          <div class="bento-card-title emerald" id="titleNeedsCard">💧 Sunlight, Moisture & Soil Mix</div>
           <ul class="bento-list" id="cardNeedsList"></ul>
         </div>
         <div class="bento-card amber">
-          <div class="bento-card-title amber">📋 Cultivation Notes & Mistakes</div>
+          <div class="bento-card-title amber" id="titleWarningsCard">📋 Cultivation Notes & Mistakes</div>
           <ul class="bento-list" id="cardWarningsList"></ul>
         </div>
         <div class="bento-card rose">
-          <div class="bento-card-title rose">🚨 Pet Toxicity & Safety Cautions</div>
+          <div class="bento-card-title rose" id="titleDangersCard">🚨 Pet Toxicity & Safety Cautions</div>
           <ul class="bento-list" id="cardDangersList"></ul>
         </div>
       </div>
 
       <!-- Action Row -->
       <div class="diag-actions" id="diagActionsRow" style="display:none">
-        <button class="btn-diag-rescan" onclick="launchViewfinder()">📷 Scan Another Specimen</button>
-        <button class="btn-diag-close" onclick="dismissResult()">✕ Close Report</button>
+        <button class="btn-diag-rescan" onclick="launchViewfinder()">📷 <span id="btnScanAnother">Scan Another Specimen</span></button>
+        <button class="btn-diag-close" onclick="dismissResult()">✕ <span id="btnCloseReport">Close Report</span></button>
       </div>
     </section>
 
     <!-- BOTANICAL EXPLORER -->
     <section class="explorer-wrap">
       <div class="explorer-head">
-        <h3>Encyclopedic Plant Library</h3>
+        <h3 id="librarySectionHead">Encyclopedic Plant Library</h3>
         <span id="libraryCountLabel">15 curated species</span>
       </div>
       <div class="plants-card-grid" id="plantsDirectoryGrid"></div>
@@ -847,24 +945,24 @@
     <!-- FOOTER WITH COSMOS AI QUOTE -->
     <footer class="apple-footer">
       <p>Leafy is an AI application and powered by <a class="cosmos-ai-highlight" href="https://sathishyogesh20-del.github.io/MY_PORTFOLIO/" target="_blank" rel="noopener noreferrer">cosmos ai</a></p>
-      <p style="margin-top:6px;font-size:0.75rem;opacity:0.6">Apple Intelligence Inspired • Powered by Grok Vision • Works Offline</p>
+      <p style="margin-top:6px;font-size:0.75rem;opacity:0.6">Apple Intelligence Inspired • Powered by Groq Vision • Works Offline</p>
     </footer>
   </div>
 
-  <!-- ── APPLE VIEWFINDER MODAL ────────────────────────────────────── -->
+  <!-- ── APPLE LIVE VIEWFINDER MODAL ─────────────────────────────────── -->
   <div class="apple-viewfinder-modal" id="viewfinderModal">
     <div class="vf-stream-container">
       <video id="cameraFeedVideo" autoplay playsinline muted></video>
     </div>
 
-    <!-- Apple Intelligence Reticle -->
+    <!-- Reticle -->
     <div class="vf-optic-reticle">
       <div class="corner-bracket tl"></div>
       <div class="corner-bracket tr"></div>
       <div class="corner-bracket bl"></div>
       <div class="corner-bracket br"></div>
       <div class="vf-emerald-laser"></div>
-      <div class="vf-tip-caption">ALIGN SPECIMEN IN RETICLE</div>
+      <div class="vf-tip-caption" id="reticleTipCaption">ALIGN SPECIMEN IN RETICLE</div>
     </div>
 
     <!-- Viewfinder HUD Top -->
@@ -891,6 +989,67 @@
     </div>
   </div>
 
+  <!-- ── USER & SETTINGS DRAWER MODAL ────────────────────────────────── -->
+  <div class="modal-backdrop" id="settingsModal">
+    <div class="apple-settings-card">
+      <div class="settings-title">⚙️ App Settings & Account</div>
+      <div class="settings-desc">Manage language preferences, AI configuration, and your user account.</div>
+      
+      <!-- User Profile & Google Auth Section -->
+      <div class="setting-section-box">
+        <h4><span>👤</span> Google Authentication</h4>
+        <div id="authLoggedOutView">
+          <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:12px;">Sign in with Google to sync your garden collections and diagnosis history.</p>
+          <button class="btn-google-auth" onclick="handleGoogleSignIn()">
+            <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.616z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+            Sign in with Google
+          </button>
+        </div>
+        <div id="authLoggedInView" style="display:none">
+          <div class="user-profile-header">
+            <img id="userProfilePic" src="" alt="User profile" />
+            <div class="user-profile-info">
+              <h5 id="userProfileName">User</h5>
+              <p id="userProfileEmail">user@example.com</p>
+            </div>
+          </div>
+          <button class="btn-logout" onclick="handleSignOut()">Sign Out</button>
+        </div>
+      </div>
+
+      <!-- Language Selection Section -->
+      <div class="setting-section-box">
+        <h4><span>🌐</span> Language & Transcribe Settings</h4>
+        <p style="font-size:0.78rem; color:var(--text-muted); margin-bottom:10px;">Select your native language. Leafy AI will transcribe and generate the diagnosis report in this language.</p>
+        <div class="lang-grid-select">
+          <div class="lang-card-option active" data-lang="en" onclick="setLanguage('en')">
+            English <small>Global</small>
+          </div>
+          <div class="lang-card-option" data-lang="ta" onclick="setLanguage('ta')">
+            தமிழ் <small>Tamil</small>
+          </div>
+          <div class="lang-card-option" data-lang="hi" onclick="setLanguage('hi')">
+            हिन्दी <small>Hindi</small>
+          </div>
+          <div class="lang-card-option" data-lang="te" onclick="setLanguage('te')">
+            తెలుగు <small>Telugu</small>
+          </div>
+          <div class="lang-card-option" data-lang="kn" onclick="setLanguage('kn')">
+            ಕನ್ನಡ <small>Kannada</small>
+          </div>
+          <div class="lang-card-option" data-lang="ml" onclick="setLanguage('ml')">
+            മലയാളം <small>Malayalam</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Buttons -->
+      <div class="settings-footer-row">
+        <button class="btn-apple-primary" style="flex:1" onclick="closeSettingsModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Offscreen Canvas for Frame Grab -->
   <canvas id="offscreenCanvas" style="display:none"></canvas>
 
@@ -910,6 +1069,277 @@
     let chosenOrgan = 'leaf';
     let currentFilterType = 'all';
     let deferredPWA = null;
+
+    // Current Active Language (Default: English)
+    let currentLang = localStorage.getItem('leafy_language') || 'en';
+
+    /* ── MULTILINGUAL DICTIONARY ───────────────────────────────────── */
+    const I18N = {
+      en: {
+        name: "English",
+        heroBadge: "Powered by Groq Vision & Cosmos AI",
+        heroHead: "Instant Plant Doctor<br/><em>Designed for Precision</em>",
+        heroLead: "Scan any garden leaf, medicinal herb, vegetable, or flower. Leafy analyzes pests, pollinators, watering, and care in real-time in your native language.",
+        searchPlaceholder: "Search Tulsi, Money Plant, Rose, Oma Valli, Tomato…",
+        scannerTitle: "AI Vision Viewfinder",
+        scannerDesc: "Point your device at any specimen or select a gallery photo for deep multi-spectral botanical diagnosis in your selected language.",
+        btnLiveCam: "Live Camera",
+        btnUpload: "Upload Photo",
+        cardInsects: "🦋 Insects, Pollinators & Pests",
+        cardAttention: "⚠️ Critical Care & Attention (Water/Soil)",
+        cardBenefits: "🌱 Ayurvedic & Traditional Uses",
+        cardNeeds: "💧 Sunlight, Moisture & Soil Mix",
+        cardWarnings: "📋 Cultivation Notes & Mistakes",
+        cardDangers: "🚨 Pet Toxicity & Safety Cautions",
+        confLabel: "Diagnostic Confidence",
+        btnRescan: "Scan Another Specimen",
+        btnClose: "Close Report",
+        libraryTitle: "Encyclopedic Plant Library"
+      },
+      ta: {
+        name: "தமிழ் (Tamil)",
+        heroBadge: "க்ரோக் விஷன் & காஸ்மோஸ் AI மூலம் இயக்கப்படுகிறது",
+        heroHead: "உடனடி தாவர மருத்துவர்<br/><em>துல்லியமான கணிப்பு</em>",
+        heroLead: "உங்கள் தோட்டத்து இலை, மூலிகை, காய்கறி அல்லது பூவை ஸ்கேன் செய்யுங்கள். பூச்சிகள், மகரந்தச் சேர்க்கை, நீர்ப்பாசனம் மற்றும் பராமரிப்பை தமிழில் உடனுக்குடன் அறியலாம்.",
+        searchPlaceholder: "துளசி, மணி பிளான்ட், ரோஜா, ஓமவல்லி, தக்காளி தேடுக…",
+        scannerTitle: "AI விஷன் கேமரா",
+        scannerDesc: "எந்தவொரு தாவரத்தின் மீதும் கேமராவை வைத்து அல்லது புகைப்படத்தை பதிவேற்றி முழு தாவர அறிக்கையை தமிழில் பெறுங்கள்.",
+        btnLiveCam: "நேரடி கேமரா",
+        btnUpload: "புகைப்படம் பதிவேற்றுக",
+        cardInsects: "🦋 ஈர்க்கும் பூச்சிகள் & மகரந்தச் சேர்க்கையாளர்கள்",
+        cardAttention: "⚠️ அவசர கவனிப்பு (தண்ணீர் / மண் நிலை)",
+        cardBenefits: "🌱 ஆயுர்வேத & பாரம்பரிய மருத்துவப் பயன்கள்",
+        cardNeeds: "💧 சூரிய ஒளி, ஈரப்பதம் & மண் கலவை",
+        cardWarnings: "📋 தோட்டக் குறிப்புகள் & தவிர்க்க வேண்டியவை",
+        cardDangers: "🚨 செல்லப்பிராணிகள் பாதுகாப்பு & எச்சரிக்கை",
+        confLabel: "துல்லிய நம்பிக்கை",
+        btnRescan: "மீண்டும் ஸ்கேன் செய்க",
+        btnClose: "அறிக்கையை மூடுக",
+        libraryTitle: "தாவர கலைக்களஞ்சியம்"
+      },
+      hi: {
+        name: "हिन्दी (Hindi)",
+        heroBadge: "ग्रॉक विज़न और कॉस्मॉस AI द्वारा संचालित",
+        heroHead: "त्वरित पौधा चिकित्सक<br/><em>सटीक विश्लेषण</em>",
+        heroLead: "किसी भी पत्ती, औषधीय जड़ी-बूटी, सब्जी या फूल को स्कैन करें। कीटों, परागणकों, पानी और देखभाल की पूरी रिपोर्ट अपनी भाषा में तुरंत पाएं।",
+        searchPlaceholder: "तुलसी, मनी प्लांट, गुलाब, अजवाइन पत्ता, टमाटर खोजें…",
+        scannerTitle: "AI विज़न व्यूफाइंडर",
+        scannerDesc: "अपने कैमरे को पौधे की ओर करें या फोटो अपलोड करके हिंदी में विस्तृत वनस्पति रिपोर्ट प्राप्त करें।",
+        btnLiveCam: "लाइव कैमरा",
+        btnUpload: "फोटो अपलोड करें",
+        cardInsects: "🦋 आकर्षित कीट और परागणक",
+        cardAttention: "⚠️ विशेष ध्यान (पानी और मिट्टी की स्थिति)",
+        cardBenefits: "🌱 आयुर्वेदिक और पारंपरिक उपयोग",
+        cardNeeds: "💧 धूप, पानी और मिट्टी की आवश्यकता",
+        cardWarnings: "📋 बागवानी सुझाव और सावधानियां",
+        cardDangers: "🚨 पालतू जानवरों की सुरक्षा चेतावनी",
+        confLabel: "सटीकता दर",
+        btnRescan: "दूसरा पौधा स्कैन करें",
+        btnClose: "रिपोर्ट बंद करें",
+        libraryTitle: "पौधा ज्ञानकोश"
+      },
+      te: {
+        name: "తెలుగు (Telugu)",
+        heroBadge: "గ్రాక్ విజన్ & కాస్మోస్ AI ఆధారితం",
+        heroHead: "తక్షణ మొక్కల వైద్యుడు<br/><em>ఖచ్చితమైన విశ్లేషణ</em>",
+        heroLead: "తోట ఆకులు, మూలికలు లేదా పువ్వులను స్కాన్ చేయండి. కీటకాలు, నీటి అవసరాలు మరియు సంరక్షణ వివరాలు తెలుగులో క్షణాల్లో తెలుసుకోండి.",
+        searchPlaceholder: "తులసి, మనీ ప్లాంట్, గులాబీ, వాము ఆకు, టమాటా వెతకండి…",
+        scannerTitle: "AI విజన్ కెమెరా",
+        scannerDesc: "మొక్కను కెమెరాతో స్కాన్ చేసి లేదా ఫోటో అప్‌లోడ్ చేసి తెలుగులో వివరణాత్మక నివేదిక పొందండి.",
+        btnLiveCam: "లైవ్ కెమెరా",
+        btnUpload: "ఫోటో అప్‌లోడ్",
+        cardInsects: "🦋 ఆకర్షించే కీటకాలు & పరాగ సంపర్కాలు",
+        cardAttention: "⚠️ ముఖ్యమైన జాగ్రత్తలు (నీరు / మట్టి)",
+        cardBenefits: "🌱 ఆయుర్వేద & సాంప్రదాయ ఉపయోగాలు",
+        cardNeeds: "💧 ఎండ, నీరు & మట్టి మిశ్రమం",
+        cardWarnings: "📋 తోట పెంపకం సూచనలు",
+        cardDangers: "🚨 పెంపుడు జంతువుల భద్రతా హెచ్చరిక",
+        confLabel: "ఖచ్చితత్వం",
+        btnRescan: "మరో మొక్క స్కాన్ చేయండి",
+        btnClose: "నివేదిక మూసివేయి",
+        libraryTitle: "మొక్కల నిఘంటువు"
+      },
+      kn: {
+        name: "ಕನ್ನಡ (Kannada)",
+        heroBadge: "ಗ್ರಾಕ್ ವಿಷನ್ & ಕಾಸ್ಮಾಸ್ AI ಚಾಲಿತ",
+        heroHead: "ತ್ವರಿತ ಸಸ್ಯ ವೈದ್ಯ<br/><em>ನಿಖರವಾದ ರೋಗನಿರ್ಣಯ</em>",
+        heroLead: "ತೋಟದ ಎಲೆ, ಗಿಡಮೂಲಿಕೆ ಅಥವಾ ಹೂವನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ. ಕೀಟಗಳು, ಪರಾಗಸ್ಪರ್ಶಕಗಳು ಮತ್ತು ಆರೈಕೆಯ ವರದಿಯನ್ನು ಕನ್ನಡದಲ್ಲೇ ಪಡೆಯಿರಿ.",
+        searchPlaceholder: "ತುಳಸಿ, ಮನಿ ಪ್ಲಾಂಟ್, ಗುಲಾಬಿ, ದೊಡ್ಡಪತ್ರೆ, ಟೊಮೆಟೊ ಹುಡುಕಿ…",
+        scannerTitle: "AI ವಿಷನ್ ಕ್ಯಾಮೆರಾ",
+        scannerDesc: "ಸಸ್ಯವನ್ನು ಸ್ಕ್ಯಾನ್ ಮಾಡಿ ಅಥವಾ ಫೋಟೋ ಅಪ್ಲೋಡ್ ಮಾಡಿ ಕನ್ನಡದಲ್ಲಿ ಸಂಪೂರ್ಣ ಮಾಹಿತಿ ಪಡೆಯಿರಿ.",
+        btnLiveCam: "ಲೈವ್ ಕ್ಯಾಮೆರಾ",
+        btnUpload: "ಫೋಟೋ ಅಪ್ಲೋಡ್",
+        cardInsects: "🦋 ಆಕರ್ಷಿಸುವ ಕೀಟಗಳು ಮತ್ತು ಪರಾಗಸ್ಪರ್ಶಕಗಳು",
+        cardAttention: "⚠️ ಪ್ರಮುಖ ಗಮನ (ನೀರು ಮತ್ತು ಮಣ್ಣು)",
+        cardBenefits: "🌱 ಆಯುರ್ವೇದ ಮತ್ತು ಸಾಂಪ್ರದಾಯಿಕ ಉಪಯೋಗಗಳು",
+        cardNeeds: "💧 ಸೂರ್ಯನ ಬೆಳಕು, ನೀರು ಮತ್ತು ಮಣ್ಣು",
+        cardWarnings: "📋 ತೋಟಗಾರಿಕೆ ಟಿಪ್ಸ್ ಮತ್ತು ತಪ್ಪುಗಳು",
+        cardDangers: "🚨 ಸಾಕುಪ್ರಾಣಿ ಸುರಕ್ಷತೆ ಎಚ್ಚರಿಕೆ",
+        confLabel: "ಖಚಿತತೆ ದರ",
+        btnRescan: "ಮತ್ತೊಮ್ಮೆ ಸ್ಕ್ಯಾನ್ ಮಾಡಿ",
+        btnClose: "ವರದಿ ಮುಚ್ಚಿ",
+        libraryTitle: "ಸಸ್ಯ ಜ್ಞಾನಕೋಶ"
+      },
+      ml: {
+        name: "മലയാളം (Malayalam)",
+        heroBadge: "ഗ്രോക്ക് വിഷൻ & കോസ്മോസ് AI അധിഷ്ഠിതം",
+        heroHead: "തത്സമയ സസ്യ ഡോക്ടർ<br/><em>കൃത്യമായ രോഗനിർണ്ണയം</em>",
+        heroLead: "ഏതെങ്കിലും ഇലയോ, ഔഷധസസ്യമോ, പച്ചക്കറിയോ സ്കാൻ ചെയ്യുക. കീടങ്ങൾ, പരാഗണകാരികൾ, പരിചരണം എന്നിവയെക്കുറിച്ചുള്ള റിപ്പോർട്ട് മലയാളത്തിൽ ലഭ്യമാക്കുന്നു.",
+        searchPlaceholder: "തുളസി, മണി പ്ലാന്റ്, റോസ്, പനിക്കൂർക്ക, തക്കാളി തിരയുക…",
+        scannerTitle: "AI വിഷൻ ക്യാമറ",
+        scannerDesc: "സസ്യത്തെ ക്യാമറയിലൂടെ സ്കാൻ ചെയ്ത് പൂർണ്ണമായ റിപ്പോർട്ട് മലയാളത്തിൽ നേടുക.",
+        btnLiveCam: "തത്സമയ ക്യാമറ",
+        btnUpload: "ഫോട്ടോ അപ്‌ലോഡ്",
+        cardInsects: "🦋 ആകർഷിക്കുന്ന പ്രാണികളും പരാഗണകാരികളും",
+        cardAttention: "⚠️ ശ്രദ്ധിക്കേണ്ട കാര്യങ്ങൾ (വെള്ളവും മണ്ണും)",
+        cardBenefits: "🌱 ആയുർവേദ & പരമ്പരാഗത ഗുണങ്ങൾ",
+        cardNeeds: "💧 സൂര്യപ്രകാശം, നനവ് & മണ്ണ്",
+        cardWarnings: "📋 കൃഷി നിർദ്ദേശങ്ങൾ",
+        cardDangers: "🚨 വളർത്തുമൃഗ സുരക്ഷാ മുന്നറിയിപ്പ്",
+        confLabel: "കൃത്യത നിരക്ക്",
+        btnRescan: "വീണ്ടും സ്കാൻ ചെയ്യുക",
+        btnClose: "റിപ്പോർട്ട് ക്ലോസ് ചെയ്യുക",
+        libraryTitle: "സസ്യ വിജ്ഞാനകോശം"
+      }
+    };
+
+    /* ── LANGUAGE SWITCHER LOGIC ───────────────────────────────────── */
+    function setLanguage(langCode) {
+      if (!I18N[langCode]) langCode = 'en';
+      currentLang = langCode;
+      localStorage.setItem('leafy_language', langCode);
+
+      // Highlight active buttons
+      document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.lang === langCode);
+      });
+      document.querySelectorAll('.lang-card-option').forEach(card => {
+        card.classList.toggle('active', card.dataset.lang === langCode);
+      });
+
+      // Update UI Text
+      const d = I18N[langCode];
+      document.getElementById('heroBadgeLabel').textContent = d.heroBadge;
+      document.getElementById('heroHeadline').innerHTML = d.heroHead;
+      document.getElementById('heroSubtitle').textContent = d.heroLead;
+      document.getElementById('plantSearchInput').placeholder = d.searchPlaceholder;
+      document.getElementById('scannerCardTitle').textContent = d.scannerTitle;
+      document.getElementById('scannerCardDesc').textContent = d.scannerDesc;
+      document.getElementById('btnLiveCamLabel').textContent = d.btnLiveCam;
+      document.getElementById('btnUploadLabel').textContent = d.btnUpload;
+      document.getElementById('titleInsectsCard').textContent = d.cardInsects;
+      document.getElementById('titleAttentionCard').textContent = d.cardAttention;
+      document.getElementById('titleBenefitsCard').textContent = d.cardBenefits;
+      document.getElementById('titleNeedsCard').textContent = d.cardNeeds;
+      document.getElementById('titleWarningsCard').textContent = d.cardWarnings;
+      document.getElementById('titleDangersCard').textContent = d.cardDangers;
+      document.getElementById('confBarLabel').textContent = d.confLabel;
+      document.getElementById('btnScanAnother').textContent = d.btnRescan;
+      document.getElementById('btnCloseReport').textContent = d.btnClose;
+      document.getElementById('librarySectionHead').textContent = d.libraryTitle;
+
+      triggerToast(`🌐 Language: ${d.name}`);
+    }
+
+    /* ── FIREBASE GOOGLE AUTH INITIALIZATION ────────────────────────── */
+    // User can customize their Firebase project config or use local persisted auth
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyDummyKeyForInitialClientBundle_ReplaceWhenReady",
+      authDomain: "cosmos-leafy.firebaseapp.com",
+      projectId: "cosmos-leafy",
+      storageBucket: "cosmos-leafy.appspot.com"
+    };
+
+    let currentUser = null;
+    let authInitialized = false;
+
+    try {
+      if (typeof firebase !== 'undefined' && firebase.apps.length === 0) {
+        firebase.initializeApp(FIREBASE_CONFIG);
+        firebase.auth().onAuthStateChanged(user => {
+          currentUser = user;
+          updateAuthUI(user);
+        });
+        authInitialized = true;
+      }
+    } catch (e) {
+      console.warn('[Leafy Firebase Notice]', e);
+    }
+
+    // Check localStorage fallback for offline / mock Google login
+    const savedUser = localStorage.getItem('leafy_mock_user');
+    if (savedUser) {
+      try {
+        currentUser = JSON.parse(savedUser);
+        updateAuthUI(currentUser);
+      } catch {}
+    }
+
+    async function handleGoogleSignIn() {
+      if (authInitialized && typeof firebase !== 'undefined') {
+        try {
+          const provider = new firebase.auth.GoogleAuthProvider();
+          const result = await firebase.auth().signInWithPopup(provider);
+          currentUser = result.user;
+          updateAuthUI(currentUser);
+          triggerToast(`👋 Welcome, ${currentUser.displayName || 'Gardener'}!`);
+          return;
+        } catch (err) {
+          console.warn('[Firebase Popup blocked or not configured, using demo auth]', err);
+        }
+      }
+
+      // Seamless Demo Google Auth Prompt if Firebase Project not yet linked
+      const demoEmail = prompt("Enter your Google Account email:", "gardener@gmail.com");
+      if (demoEmail) {
+        currentUser = {
+          displayName: demoEmail.split('@')[0],
+          email: demoEmail,
+          photoURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80"
+        };
+        localStorage.setItem('leafy_mock_user', JSON.stringify(currentUser));
+        updateAuthUI(currentUser);
+        triggerToast(`👋 Welcome, ${currentUser.displayName}!`);
+      }
+    }
+
+    async function handleSignOut() {
+      if (authInitialized && typeof firebase !== 'undefined') {
+        try { await firebase.auth().signOut(); } catch {}
+      }
+      currentUser = null;
+      localStorage.removeItem('leafy_mock_user');
+      updateAuthUI(null);
+      triggerToast('Signed out successfully.');
+    }
+
+    function updateAuthUI(user) {
+      const headerContainer = document.getElementById('authHeaderContainer');
+      const loggedOutView = document.getElementById('authLoggedOutView');
+      const loggedInView = document.getElementById('authLoggedInView');
+
+      if (user) {
+        headerContainer.innerHTML = `
+          <div class="user-avatar-pill" onclick="openSettingsModal()" title="Account & Settings">
+            <img src="${user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80'}" alt="Avatar" />
+            <span>${user.displayName || 'You'}</span>
+          </div>
+        `;
+        loggedOutView.style.display = 'none';
+        loggedInView.style.display = 'block';
+        document.getElementById('userProfilePic').src = user.photoURL || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&q=80';
+        document.getElementById('userProfileName').textContent = user.displayName || 'Gardener';
+        document.getElementById('userProfileEmail').textContent = user.email || '';
+      } else {
+        headerContainer.innerHTML = `
+          <button class="btn-glass-pill" onclick="openSettingsModal()" id="btnOpenAuthModal">
+            <span>⚙️</span> <span id="authStatusText">Sign In / Settings</span>
+          </button>
+        `;
+        loggedOutView.style.display = 'block';
+        loggedInView.style.display = 'none';
+      }
+    }
 
     /* ── PWA SERVICE WORKER REGISTRATION ──────────────────────────── */
     if ('serviceWorker' in navigator) {
@@ -1006,20 +1436,21 @@
       reader.readAsDataURL(file);
     }
 
-    /* ── AI MULTI-MODEL VISION ENGINE (GROK & OPENAI) ──────────────── */
+    /* ── AI MULTI-LINGUAL VISION ENGINE (GROQ LPU) ─────────────────── */
     const SCAN_STEPS = [
       'Extracting morphological features…',
       'Scanning venation & margin serration…',
       'Cross-referencing plant.md taxonomy…',
-      'Analyzing pollinator & pest markers…',
+      'Translating and localizing botanical terminology…',
       'Assessing soil, watering & light stress…',
-      'Formulating Ayurvedic diagnostic card…'
+      'Formulating diagnostic card in your selected language…'
     ];
 
     async function runVisionAnalysis(imageDataUrl) {
       const rs = document.getElementById('diagnosisResultSection');
       rs.classList.add('active');
       document.getElementById('analyzedSpecimenImg').src = imageDataUrl;
+      document.getElementById('analyzedSpecimenImg').style.display = 'block';
       document.getElementById('aiScanningOverlay').style.display = 'flex';
       document.getElementById('confidenceStripRow').style.display = 'none';
       document.getElementById('plantHeroCardBlock').style.display = 'none';
@@ -1149,54 +1580,53 @@
     }
 
     function generateDiagnosticPrompt() {
+      const langName = I18N[currentLang] ? I18N[currentLang].name : "English";
+
       return `You are Leafy — an expert botanist, Ayurvedic herbalist, and home garden doctor trained on the plant.md botanical manual.
 
 TASK: Visually analyze this plant specimen photograph with maximum accuracy. The organ type selected by user is: "${chosenOrgan}".
 
-Examine:
-• Leaf shape, margin serrations, venation (pinnate/palmate), texture, color
-• Stem thickness, surface, color
-• Flower arrangement, petal count, color pattern
-• Fruit morphology if visible
-• Overall growth habit (climber, rosette, shrub, tree, succulent)
-• Visual health indicators: yellowing, spots, insect damage, dehydration
+CRITICAL INSTRUCTION - TARGET LANGUAGE:
+The user has chosen their language as: ${langName} (${currentLang}).
+You MUST translate and transcribe ALL values (common name, summary, insects list, attention list, benefits, needs, warnings, dangers) into ${langName}!
+Only the "scientific" field should remain Latin (e.g. Ocimum tenuiflorum).
 
 OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
 {
-  "common": "Primary common name (include local Indian names if applicable)",
-  "scientific": "Genus species",
-  "regional": "Regional or vernacular names (e.g. Tulsi, Mogra, Thakkali, Vetrillai, Karpooravalli)",
-  "badge": "Single emoji + brief classification tag",
+  "common": "Primary common name in ${langName}",
+  "scientific": "Latin Genus species",
+  "regional": "Regional or vernacular names in ${langName}",
+  "badge": "Single emoji + brief tag in ${langName}",
   "confidence": 92,
-  "summary": "3 vivid sentences describing what this plant is, its cultural significance, and notable visual traits seen in this photo.",
-  "vision_tags": ["trait observed 1", "trait observed 2", "trait observed 3", "trait observed 4"],
+  "summary": "3 vivid sentences in ${langName} describing what this plant is, its cultural significance, and notable visual traits seen in this photo.",
+  "vision_tags": ["trait in ${langName} 1", "trait in ${langName} 2", "trait in ${langName} 3"],
   "insects": [
-    "Beneficial pollinators it attracts (bees, butterflies, sunbirds, moths)",
-    "Pest insects likely to target this species (aphids, mealybugs, fruit flies, spider mites)",
-    "Companion planting notes or natural deterrent qualities"
+    "Beneficial pollinators it attracts written in ${langName}",
+    "Pest insects likely to target this species written in ${langName}",
+    "Companion planting notes written in ${langName}"
   ],
   "attention": [
-    "Watering diagnostic: overwatering vs underwatering visual symptoms visible or likely",
-    "Soil & repotting needs: compaction, aeration, drainage requirement",
-    "Sunlight calibration: observe any scorch marks, leggy growth, or shade stress in photo"
+    "Watering diagnostic: overwatering vs underwatering written in ${langName}",
+    "Soil & repotting needs written in ${langName}",
+    "Sunlight calibration written in ${langName}"
   ],
   "benefits": [
-    "Primary Ayurvedic or medicinal use",
-    "Culinary or daily household use",
-    "Air purifying or ecological benefit"
+    "Primary Ayurvedic or medicinal use written in ${langName}",
+    "Culinary or daily household use written in ${langName}",
+    "Air purifying or ecological benefit written in ${langName}"
   ],
   "needs": [
-    "Sunlight: hours and intensity",
-    "Water: frequency and method",
-    "Soil: ideal mix and pot size",
-    "Fertilizer: organic booster recommendation"
+    "Sunlight: hours and intensity written in ${langName}",
+    "Water: frequency and method written in ${langName}",
+    "Soil: ideal mix and pot size written in ${langName}",
+    "Fertilizer: organic booster recommendation written in ${langName}"
   ],
   "warnings": [
-    "Most critical cultivation mistake to avoid",
-    "Disease or pest prevention tip"
+    "Critical cultivation mistake to avoid written in ${langName}",
+    "Disease or pest prevention tip written in ${langName}"
   ],
   "dangers": [
-    "Pet/child toxicity or physical safety alert"
+    "Pet/child toxicity or safety alert written in ${langName}"
   ]
 }`;
     }
@@ -1212,7 +1642,7 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
       document.getElementById('plantHeroCardBlock').style.display = 'block';
 
       // Confidence Bar
-      const conf = Math.max(0, Math.min(100, parseInt(p.confidence) || 85));
+      const conf = Math.max(0, Math.min(100, parseInt(p.confidence) || 88));
       document.getElementById('confidenceStripRow').style.display = 'flex';
       document.getElementById('confidencePercentText').textContent = `${conf}%`;
       setTimeout(() => document.getElementById('confidenceBarFill').style.width = `${conf}%`, 60);
@@ -1326,6 +1756,15 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
       renderLibrary(results);
     }
 
+    /* ── SETTINGS MODAL ────────────────────────────────────────────── */
+    function openSettingsModal() {
+      document.getElementById('settingsModal').classList.add('open');
+    }
+
+    function closeSettingsModal() {
+      document.getElementById('settingsModal').classList.remove('open');
+    }
+
     /* ── TOAST NOTIFICATIONS ───────────────────────────────────────── */
     let toastTimeout = null;
     function triggerToast(msg) {
@@ -1338,6 +1777,7 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
 
     /* ── INITIALIZATION ────────────────────────────────────────────── */
     window.addEventListener('DOMContentLoaded', () => {
+      setLanguage(currentLang);
       if (window.PLANT_DATABASE) renderLibrary(window.PLANT_DATABASE);
     });
   </script>
