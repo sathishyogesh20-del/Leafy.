@@ -723,7 +723,6 @@
       </div>
       <div class="topbar-actions">
         <span class="btn-glass-pill online" id="connectionBadge">Online</span>
-        <button class="btn-glass-pill settings" onclick="openSettingsModal()" title="AI Model Settings">⚙️</button>
         <button class="btn-glass-pill" id="pwaInstallBtn" style="display:none">📲 Install</button>
       </div>
     </header>
@@ -892,37 +891,6 @@
     </div>
   </div>
 
-  <!-- ── AI MODEL SETTINGS MODAL ───────────────────────────────────── -->
-  <div class="modal-backdrop" id="settingsModal">
-    <div class="apple-settings-card">
-      <div class="settings-title">⚙️ AI Model Preferences</div>
-      <div class="settings-desc">Select whether to use xAI Grok Vision or OpenAI GPT-4o Vision for visual recognition.</div>
-      
-      <div class="form-group">
-        <label>AI Provider</label>
-        <select id="settingProvider" onchange="toggleKeyFields()">
-          <option value="grok">xAI Grok Vision (grok-2-vision-1212)</option>
-          <option value="openai">OpenAI Vision (gpt-4o)</option>
-        </select>
-      </div>
-
-      <div class="form-group" id="grokKeyWrap">
-        <label>Grok API Key</label>
-        <input type="password" id="settingGrokKey" placeholder="xai-..." />
-      </div>
-
-      <div class="form-group" id="openaiKeyWrap" style="display:none">
-        <label>OpenAI API Key</label>
-        <input type="password" id="settingOpenAIKey" placeholder="sk-..." />
-      </div>
-
-      <div class="settings-footer">
-        <button class="btn-apple-primary" style="flex:1" onclick="saveSettings()">Save & Activate</button>
-        <button class="btn-apple-glass" style="flex:1" onclick="closeSettingsModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Offscreen Canvas for Frame Grab -->
   <canvas id="offscreenCanvas" style="display:none"></canvas>
 
@@ -934,24 +902,14 @@
 
   <script>
     /* ── CONFIGURATION & STATE ─────────────────────────────────────── */
-    const DEFAULT_OPENAI_KEY = "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";
+    const GROQ_API_KEY = "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";
+    const OPENAI_API_KEY = "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";
     
     let cameraStream = null;
     let cameraFacingMode = 'environment';
     let chosenOrgan = 'leaf';
     let currentFilterType = 'all';
     let deferredPWA = null;
-
-    // Load persisted settings or defaults
-    let aiProvider = localStorage.getItem('leafy_ai_provider') || 'grok';
-    let grokApiKey = localStorage.getItem('leafy_grok_key') || '';
-    let openaiApiKey = localStorage.getItem('leafy_openai_key') || DEFAULT_OPENAI_KEY;
-
-    function syncModelBadge() {
-      const badge = document.getElementById('activeModelBadge');
-      badge.textContent = aiProvider === 'grok' ? 'Grok Vision' : 'GPT-4o Vision';
-    }
-    syncModelBadge();
 
     /* ── PWA SERVICE WORKER REGISTRATION ──────────────────────────── */
     if ('serviceWorker' in navigator) {
@@ -1090,9 +1048,7 @@
             body: JSON.stringify({
               image: imageDataUrl,
               prompt: prompt,
-              provider: aiProvider,
-              apiKey: aiProvider === 'grok' ? grokApiKey : openaiApiKey,
-              model: aiProvider === 'grok' ? 'grok-2-vision-1212' : 'gpt-4o'
+              provider: 'grok'
             })
           });
 
@@ -1104,7 +1060,7 @@
           // If proxy not hosted, fallback to direct client call
         }
 
-        // Direct Client API Call if Proxy not returned
+        // Direct Client API Call with Groq Vision
         if (!plantResult) {
           plantResult = await executeDirectVisionCall(imageDataUrl, prompt);
         }
@@ -1122,30 +1078,47 @@
     }
 
     async function executeDirectVisionCall(imageData, prompt) {
-      let endpoint, key, targetModel;
+      // Primary: Groq Vision (Ultra-Fast LPU Inference)
+      try {
+        const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${GROQ_API_KEY}`
+          },
+          body: JSON.stringify({
+            model: 'qwen/qwen3.8-27b',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  { type: 'text', text: prompt },
+                  { type: 'image_url', image_url: { url: imageData } }
+                ]
+              }
+            ],
+            max_tokens: 1500,
+            temperature: 0.15
+          })
+        });
 
-      if (aiProvider === 'grok') {
-        if (!grokApiKey) {
-          openSettingsModal();
-          throw new Error('Please enter your Grok API key in Settings.');
+        if (groqRes.ok) {
+          const groqData = await groqRes.json();
+          return parseJsonClean(groqData.choices[0].message.content);
         }
-        endpoint = 'https://api.x.ai/v1/chat/completions';
-        key = grokApiKey;
-        targetModel = 'grok-2-vision-1212';
-      } else {
-        endpoint = 'https://api.openai.com/v1/chat/completions';
-        key = openaiApiKey;
-        targetModel = 'gpt-4o';
+      } catch (groqErr) {
+        console.warn('[Leafy Groq fallback to OpenAI]', groqErr);
       }
 
-      const res = await fetch(endpoint, {
+      // Secondary Fallback: OpenAI GPT-4o Vision
+      const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${key}`
+          'Authorization': `Bearer ${OPENAI_API_KEY}`
         },
         body: JSON.stringify({
-          model: targetModel,
+          model: 'gpt-4o',
           messages: [
             {
               role: 'user',
@@ -1351,39 +1324,6 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
         p.scientific.toLowerCase().includes(q)
       );
       renderLibrary(results);
-    }
-
-    /* ── SETTINGS MODAL ────────────────────────────────────────────── */
-    function openSettingsModal() {
-      document.getElementById('settingProvider').value = aiProvider;
-      document.getElementById('settingGrokKey').value = grokApiKey;
-      document.getElementById('settingOpenAIKey').value = openaiApiKey;
-      toggleKeyFields();
-      document.getElementById('settingsModal').classList.add('open');
-    }
-
-    function closeSettingsModal() {
-      document.getElementById('settingsModal').classList.remove('open');
-    }
-
-    function toggleKeyFields() {
-      const p = document.getElementById('settingProvider').value;
-      document.getElementById('grokKeyWrap').style.display = p === 'grok' ? 'block' : 'none';
-      document.getElementById('openaiKeyWrap').style.display = p === 'openai' ? 'block' : 'none';
-    }
-
-    function saveSettings() {
-      aiProvider = document.getElementById('settingProvider').value;
-      grokApiKey = document.getElementById('settingGrokKey').value.trim();
-      openaiApiKey = document.getElementById('settingOpenAIKey').value.trim() || DEFAULT_OPENAI_KEY;
-
-      localStorage.setItem('leafy_ai_provider', aiProvider);
-      localStorage.setItem('leafy_grok_key', grokApiKey);
-      localStorage.setItem('leafy_openai_key', openaiApiKey);
-
-      syncModelBadge();
-      closeSettingsModal();
-      triggerToast(`Active Model: ${aiProvider === 'grok' ? 'Grok Vision' : 'GPT-4o Vision'}`);
     }
 
     /* ── TOAST NOTIFICATIONS ───────────────────────────────────────── */

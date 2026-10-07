@@ -1,34 +1,31 @@
+// Leafy Serverless Vision Proxy — Supports Groq Vision & OpenAI Vision
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
-    const { image, prompt, provider, apiKey, model } = req.body;
+    const { image, prompt, provider } = req.body;
 
     if (!image) {
       return res.status(400).json({ error: 'Image data is required' });
     }
 
-    const selectedProvider = provider || (process.env.GROK_API_KEY ? 'grok' : 'openai');
-    const key = apiKey || (selectedProvider === 'grok' ? process.env.GROK_API_KEY : process.env.OPENAI_API_KEY);
+    // Default to Groq Vision using the Groq LPU API key
+    const GROQ_KEY = process.env.GROQ_API_KEY || "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";
+    const OPENAI_KEY = process.env.OPENAI_API_KEY;
 
-    if (!key) {
-      return res.status(400).json({
-        error: `Missing API key for ${selectedProvider}. Please configure in Settings.`
-      });
-    }
+    let endpoint, authHeader, targetModel;
 
-    let endpoint, targetModel, authHeader;
-
-    if (selectedProvider === 'grok') {
-      endpoint = 'https://api.x.ai/v1/chat/completions';
-      targetModel = model || 'grok-2-vision-1212';
-      authHeader = `Bearer ${key}`;
-    } else {
+    if (provider === 'openai' && OPENAI_KEY) {
       endpoint = 'https://api.openai.com/v1/chat/completions';
-      targetModel = model || 'gpt-4o';
-      authHeader = `Bearer ${key}`;
+      authHeader = `Bearer ${OPENAI_KEY}`;
+      targetModel = 'gpt-4o';
+    } else {
+      // Groq Ultra-Fast Vision LPU Model
+      endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+      authHeader = `Bearer ${GROQ_KEY}`;
+      targetModel = 'qwen/qwen3.8-27b';
     }
 
     const response = await fetch(endpoint, {
@@ -47,8 +44,7 @@ export default async function handler(req, res) {
               {
                 type: 'image_url',
                 image_url: {
-                  url: image,
-                  detail: 'high'
+                  url: image
                 }
               }
             ]
@@ -62,7 +58,7 @@ export default async function handler(req, res) {
     if (!response.ok) {
       const err = await response.json().catch(() => ({}));
       return res.status(response.status).json({
-        error: err?.error?.message || `Upstream API error HTTP ${response.status}`
+        error: err?.error?.message || `Upstream AI service error HTTP ${response.status}`
       });
     }
 
