@@ -520,6 +520,36 @@
     .bento-card-title.amber  { color: var(--accent-amber); }
     .bento-card-title.emerald{ color: var(--accent-glow); }
     .bento-card-title.rose   { color: var(--accent-rose); }
+    .bento-card-title.web    { color: #60a5fa; }
+
+    .bento-card.web {
+      grid-column: 1 / -1;
+      border-left: 4px solid #3b82f6;
+      background: rgba(59, 130, 246, 0.05);
+      border-color: rgba(59, 130, 246, 0.25);
+    }
+    .web-source-pill-row {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;
+    }
+    .web-source-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 12px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #93c5fd; text-decoration: none; font-size: 0.78rem; font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .web-source-link:hover {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: #60a5fa; color: #ffffff;
+      transform: translateY(-1px);
+    }
+    .live-search-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 0.72rem; font-weight: 700; color: #60a5fa;
+      background: rgba(59, 130, 246, 0.12); border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 3px 9px; border-radius: 10px; margin-bottom: 8px;
+    }
 
     .bento-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
     .bento-list li {
@@ -949,6 +979,13 @@
         <div class="bento-card rose">
           <div class="bento-card-title rose" id="titleDangersCard">🚨 Pet Toxicity & Safety Cautions</div>
           <ul class="bento-list" id="cardDangersList"></ul>
+        </div>
+        <!-- Live Web Knowledge & Citations Card -->
+        <div class="bento-card web" id="cardWebSourcesWrap" style="display:none">
+          <div class="live-search-badge"><span>🌐</span> Live Web Knowledge Active</div>
+          <div class="bento-card-title web" id="titleWebCard">🔍 Live Botanical Web Search & References</div>
+          <p id="webSearchSummary" style="font-size:0.84rem; color:rgba(240,253,244,0.9); line-height:1.55; margin-bottom:10px;"></p>
+          <div class="web-source-pill-row" id="webSourcesList"></div>
         </div>
       </div>
 
@@ -1465,14 +1502,14 @@
       reader.readAsDataURL(file);
     }
 
-    /* ── AI MULTI-LINGUAL VISION ENGINE (GROQ LPU) ─────────────────── */
+    /* ── AI MULTI-LINGUAL VISION ENGINE (GROQ LPU & TAVILY WEB SEARCH) ─ */
     const SCAN_STEPS = [
       'Extracting morphological features…',
       'Scanning venation & margin serration…',
       'Cross-referencing plant.md taxonomy…',
-      'Translating and localizing botanical terminology…',
-      'Assessing soil, watering & light stress…',
-      'Formulating diagnostic card in your selected language…'
+      'Connecting to live botanical web search…',
+      'Retrieving verified care, pest & disease intelligence…',
+      'Translating and localizing diagnostic card in your language…'
     ];
 
     async function runVisionAnalysis(imageDataUrl) {
@@ -1486,6 +1523,7 @@
       document.getElementById('diagnosticGridWrap').style.display = 'none';
       document.getElementById('diagActionsRow').style.display = 'none';
       document.getElementById('visionTagsRow').innerHTML = '';
+      document.getElementById('cardWebSourcesWrap').style.display = 'none';
 
       rs.scrollIntoView({ behavior: 'smooth' });
 
@@ -1499,8 +1537,9 @@
       try {
         const prompt = generateDiagnosticPrompt();
         let plantResult = null;
+        let webSearchData = null;
 
-        // Try Vercel Serverless Proxy first if available
+        // Try Vercel Serverless Proxy first if available (supports Tavily Web Search)
         try {
           const proxyRes = await fetch('/api/analyze', {
             method: 'POST',
@@ -1508,26 +1547,32 @@
             body: JSON.stringify({
               image: imageDataUrl,
               prompt: prompt,
-              provider: 'grok'
+              provider: 'grok',
+              lang: currentLang,
+              organ: chosenOrgan
             })
           });
 
           if (proxyRes.ok) {
             const proxyData = await proxyRes.json();
             plantResult = parseJsonClean(proxyData.result);
+            webSearchData = proxyData.web_search;
           }
         } catch {
           // If proxy not hosted, fallback to direct client call
         }
 
-        // Direct Client API Call with Groq Vision
+        // Direct Client API Call with Groq Vision fallback
         if (!plantResult) {
           plantResult = await executeDirectVisionCall(imageDataUrl, prompt);
         }
 
         clearInterval(stepTimer);
         document.getElementById('aiScanningOverlay').style.display = 'none';
-        renderPlantReport(plantResult);
+        renderPlantReport(plantResult, webSearchData);
+
+      } catch (err) {
+        clearInterval(stepTimer);
 
       } catch (err) {
         clearInterval(stepTimer);
@@ -1683,7 +1728,7 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
     }
 
     /* ── REPORT RENDERING ─────────────────────────────────────────── */
-    function renderPlantReport(p) {
+    function renderPlantReport(p, webSearch = null) {
       // Hero Card
       document.getElementById('plantPillBadge').textContent = p.badge || '🌿 Verified Diagnosis';
       document.getElementById('plantCommonTitle').textContent = p.common || '—';
@@ -1714,6 +1759,26 @@ OUTPUT FORMAT: Return ONLY valid JSON (no markdown formatting, no code fences):
       injectList('cardNeedsList', p.needs || []);
       injectList('cardWarningsList', p.warnings || []);
       injectList('cardDangersList', p.dangers || []);
+
+      // Live Web Sources Card (from Tavily API)
+      const webCard = document.getElementById('cardWebSourcesWrap');
+      const sources = (webSearch && webSearch.sources && webSearch.sources.length) ? webSearch.sources : (p.web_sources || []);
+      if (sources.length > 0 || (webSearch && webSearch.query)) {
+        webCard.style.display = 'block';
+        document.getElementById('webSearchSummary').textContent = webSearch?.query 
+          ? `Verified against real-time botanical web index for "${webSearch.query}".`
+          : `Verified with real-time web citations:`;
+        
+        const pillRow = document.getElementById('webSourcesList');
+        pillRow.innerHTML = sources.map(s => `
+          <a class="web-source-link" href="${s.url}" target="_blank" rel="noopener noreferrer">
+            <span>🔗</span>
+            <span>${s.title ? (s.title.length > 38 ? s.title.slice(0, 38) + '…' : s.title) : 'Web Reference'}</span>
+          </a>
+        `).join('');
+      } else {
+        webCard.style.display = 'none';
+      }
 
       document.getElementById('diagnosticGridWrap').style.display = 'grid';
       document.getElementById('diagActionsRow').style.display = 'flex';

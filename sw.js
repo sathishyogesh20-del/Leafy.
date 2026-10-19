@@ -1,5 +1,5 @@
-// Leafy Service Worker — v7 Multilingual & Auth Edition
-const CACHE = 'leafy-v7';
+// Leafy Service Worker — v8 Live Web Search & Auth Edition
+const CACHE = 'leafy-v8';
 const ASSETS = [
   './',
   './index.html',
@@ -25,9 +25,11 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  // Ignore external API, Firebase, and Groq endpoints from cache
+  // Ignore external API, Firebase, Tavily, and Groq endpoints from cache
   const url = e.request.url;
   if (
+    url.includes('/api/analyze') ||
+    url.includes('api.tavily.com') ||
     url.includes('api.groq.com') ||
     url.includes('api.openai.com') ||
     url.includes('identitytoolkit.googleapis.com') ||
